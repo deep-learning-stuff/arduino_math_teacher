@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Canguro Coach</title>
+<title>MateQwen</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%0A%20%20%3Ctitle%3EMateQwen%3C%2Ftitle%3E%0A%20%20%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%2290%22%20height%3D%2290%22%20rx%3D%2223%22%20fill%3D%22%23ad492c%22%2F%3E%0A%20%20%3Cg%20transform%3D%22translate%288%2013%29%20scale%28.82%29%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2243%22%20cy%3D%2243%22%20r%3D%2223%22%20fill%3D%22none%22%20stroke%3D%22%23fff5e2%22%20stroke-width%3D%229%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22m35%2056%2013%2014%2017-38h13%22%20fill%3D%22none%22%20stroke%3D%22%23ad492c%22%20stroke-width%3D%2215%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22m35%2056%2013%2014%2017-38h13%22%20fill%3D%22none%22%20stroke%3D%22%23ffd18b%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E%0A">
 <style>
   :root {
     --page: #f3eee4; --surface: #faf5eb; --white: #fffaf2; --plot-fill: #f0e7d7;
@@ -45,14 +46,14 @@
   .band { background: var(--surface); color: var(--band-ink); padding-bottom: 40px; }
   .bar-top { display: flex; align-items: center; gap: 12px; padding: 20px 0 28px; }
   .brand { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-  .brand svg { width: 40px; height: 40px; flex: none; }
+  .brand img { width: 40px; height: 40px; flex: none; }
   .brand span { font: 700 24px/1 var(--display); letter-spacing: -0.02em; white-space: nowrap; }
   .who { font-weight: 700; color: var(--band-soft); }
 
   /* ---------- Login ---------- */
   #login { min-height: 100dvh; background: var(--surface); color: var(--band-ink); display: grid; place-items: center; padding: 20px; }
   .login { width: min(560px, 100%); display: grid; gap: 28px; }
-  .login svg.mark { width: 120px; height: 120px; }
+  .login .mark { width: 120px; height: 120px; }
   .login h1 { font-size: clamp(40px, 7vw, 64px); line-height: 1; }
   .login p { font-size: 20px; color: var(--band-soft); max-width: 34ch; }
   .login form { display: flex; gap: 10px; }
@@ -315,11 +316,8 @@
 
 <section id="login" class="hidden">
   <div class="login">
-    <svg class="mark" viewBox="-50 -50 100 100" aria-hidden="true">
-      <polygon points="0,-46 40,-23 40,23 0,46 -40,23 -40,-23" fill="none" stroke="var(--line)" stroke-width="3"/>
-      <polygon class="grow" points="0,-32 33,-12 22,26 0,38 -28,15 -21,-20" fill="var(--go)"/>
-    </svg>
-    <h1>Canguro Coach</h1>
+    <img class="mark" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%0A%20%20%3Ctitle%3EMateQwen%3C%2Ftitle%3E%0A%20%20%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%2290%22%20height%3D%2290%22%20rx%3D%2223%22%20fill%3D%22%23ad492c%22%2F%3E%0A%20%20%3Cg%20transform%3D%22translate%288%2013%29%20scale%28.82%29%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2243%22%20cy%3D%2243%22%20r%3D%2223%22%20fill%3D%22none%22%20stroke%3D%22%23fff5e2%22%20stroke-width%3D%229%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22m35%2056%2013%2014%2017-38h13%22%20fill%3D%22none%22%20stroke%3D%22%23ad492c%22%20stroke-width%3D%2215%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22m35%2056%2013%2014%2017-38h13%22%20fill%3D%22none%22%20stroke%3D%22%23ffd18b%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E%0A" alt="" width="120" height="120">
+    <h1>MateQwen</h1>
     <p>Entrena con problemas del Canguro. Resuélvelos con ayudas que nunca te dan la respuesta, o caza los errores de una IA que casi siempre se equivoca.</p>
     <form id="login-form">
       <input id="name" placeholder="¿Cómo te llamas?" autocomplete="off" aria-label="Tu nombre" required>
@@ -333,9 +331,8 @@
     <div class="wrap">
       <div class="bar-top">
         <div class="brand">
-          <svg viewBox="-50 -50 100 100" aria-hidden="true"><polygon points="0,-46 40,-23 40,23 0,46 -40,23 -40,-23" fill="#ffc83d"/>
-            <polygon points="0,-22 19,-11 19,11 0,22 -19,11 -19,-11" fill="none" stroke="var(--band-ink)" stroke-width="7"/></svg>
-          <span>Canguro Coach</span>
+          <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%0A%20%20%3Ctitle%3EMateQwen%3C%2Ftitle%3E%0A%20%20%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%2290%22%20height%3D%2290%22%20rx%3D%2223%22%20fill%3D%22%23ad492c%22%2F%3E%0A%20%20%3Cg%20transform%3D%22translate%288%2013%29%20scale%28.82%29%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2243%22%20cy%3D%2243%22%20r%3D%2223%22%20fill%3D%22none%22%20stroke%3D%22%23fff5e2%22%20stroke-width%3D%229%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22m35%2056%2013%2014%2017-38h13%22%20fill%3D%22none%22%20stroke%3D%22%23ad492c%22%20stroke-width%3D%2215%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22m35%2056%2013%2014%2017-38h13%22%20fill%3D%22none%22%20stroke%3D%22%23ffd18b%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E%0A" alt="" width="40" height="40">
+          <span>MateQwen</span>
         </div>
         <span class="who" id="who"></span>
         <button class="btn-quiet" id="logout">Cambiar de alumno</button>

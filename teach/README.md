@@ -1,4 +1,4 @@
-# Canguro Coach: the teaching app
+# MateQwen: the teaching app
 
 A web page served by the Arduino UNO Q where students train with Kangaroo
 problems from M3Kang, in two modes:
