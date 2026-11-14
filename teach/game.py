@@ -33,8 +33,10 @@ from teach.kinds import TIERS, TYPE_KEYS, TYPES
 SOLVED_TO_CLEAR = 2
 POINTS = {1: 10, 2: 20, 3: 30}            # per problem solved without help
 HELP_FACTOR = [1.0, 0.75, 0.5, 0.35, 0.25]  # by number of rungs used
-LADDERS = {"solve": ["qwen_hint", "sibling", "attempt", "options"],
-           "correct": ["qwen_hint", "sibling", "options"]}
+# Help is only the steps of a verified worked solution (see ladder()). The other
+# kinds we tried (Qwen hints, similar problem, Qwen's attempt, the options) are
+# switched off: they didn't help enough. Add their names here to bring them back.
+LADDERS = {"solve": [], "correct": []}
 MODES = tuple(LADDERS)
 
 SCHEMA = """
@@ -57,9 +59,13 @@ CREATE TABLE IF NOT EXISTS plays (
     solved INTEGER DEFAULT 0,     -- 1 right, 0 open or wrong, -1 gave up
     seconds REAL
 );
+CREATE TABLE IF NOT EXISTS queue (  -- each student's priorities; a missing row means 0
+    user_id INTEGER, problem_id TEXT, priority REAL DEFAULT 0,
+    PRIMARY KEY (user_id, problem_id)
+);
 """
 # Columns added after the first version: added in place, so old databases keep working
-EXTRA_COLUMNS = {"problems": {"hint": "TEXT", "text_ca": "TEXT", "guide": "TEXT"},
+EXTRA_COLUMNS = {"problems": {"hint": "TEXT", "text_ca": "TEXT", "guide": "TEXT", "twins": "TEXT"},
                  "plays": {"game": "TEXT", "help_kinds": "TEXT DEFAULT ''", "points": "REAL DEFAULT 0"}}
 
 
@@ -172,25 +178,62 @@ def stats(db, uid):
     return {"types": out, "plays": totals[0] or 0, "solved": totals[1] or 0, "clean": totals[2] or 0}
 
 
+# The queue: learning without hints. A problem you fail goes to the back
+# (FAIL_PRIORITY) and comes back by itself, one point per problem you start,
+# so after a few others you meet it again. Its twins (same topic, almost the
+# same problem, from the embeddings) jump to the front (TWIN_PRIORITY): solving
+# one shows whether you learnt the idea or only that answer.
+FAIL_PRIORITY = -6
+TWIN_PRIORITY = 5
+
+
+def _priority(db, uid, pid):
+    row = db.execute("SELECT priority FROM queue WHERE user_id = ? AND problem_id = ?", (uid, pid)).fetchone()
+    return row[0] if row else 0
+
+
+def _set_priority(db, uid, pid, value):
+    db.execute("INSERT INTO queue (user_id, problem_id, priority) VALUES (?, ?, ?) "
+               "ON CONFLICT(user_id, problem_id) DO UPDATE SET priority = excluded.priority", (uid, pid, value))
+
+
+def mark_failed(db, uid, pid):
+    """Send a failed problem to the back of the queue and its twins to the front."""
+    _set_priority(db, uid, pid, FAIL_PRIORITY)
+    twins = db.execute("SELECT twins FROM problems WHERE id = ?", (pid,)).fetchone()
+    for twin in json.loads(twins[0]) if twins and twins[0] else []:
+        if _priority(db, uid, twin) < TWIN_PRIORITY:
+            _set_priority(db, uid, twin, TWIN_PRIORITY)
+    db.commit()
+
+
 def pick(db, uid, kind=None, rng=random):
     """Next problem for a type (or any type), at the student's current tier.
 
     Never above the current tier: if it has nothing left, an easier tier, and
-    if that has nothing either, None. Prefers problems never seen, then unsolved.
+    if that has nothing either, None. Among the unsolved problems of a tier, the
+    highest priority wins (twins of a failed problem first, failed problems
+    last), then problems never seen, then chance.
     """
     s = stats(db, uid)["types"]
     kinds = [kind] if kind else [k for k in TYPE_KEYS if s[k]["tier"]]
     rng.shuffle(kinds)
     for k in kinds:
         target = s[k]["tier"] or 3
-        for t in range(target, 0, -1):
-            rows = db.execute("""
-                SELECT p.id, COUNT(pl.id), MAX(pl.solved = 1) FROM problems p
-                LEFT JOIN plays pl ON pl.problem_id = p.id AND pl.user_id = ?
-                WHERE p.type = ? AND p.tier = ? GROUP BY p.id""", (uid, k, t)).fetchall()
-            pool = [r[0] for r in rows if r[1] == 0] or [r[0] for r in rows if not r[2]]
-            if pool:
-                return rng.choice(pool)
+        rows = db.execute("""
+            SELECT p.id, p.tier, COUNT(pl.id), MAX(pl.solved = 1), COALESCE(q.priority, 0) FROM problems p
+            LEFT JOIN plays pl ON pl.problem_id = p.id AND pl.user_id = ?
+            LEFT JOIN queue q ON q.problem_id = p.id AND q.user_id = ?
+            WHERE p.type = ? GROUP BY p.id""", (uid, uid, k)).fetchall()
+        # Unsolved problems of the current tier or easier ones; a waiting twin
+        # (priority > 0) is allowed from any tier: it's almost the same problem.
+        pool = [r for r in rows if not r[3] and (r[1] <= target or r[4] > 0)]
+        if pool:
+            # Highest priority first; then the current tier before easier ones;
+            # then problems never seen; then chance. Failed ones (negative) last.
+            key = lambda r: (r[4], r[1] == target, r[1], r[2] == 0)  # noqa: E731
+            best = max(key(r) for r in pool)
+            return rng.choice([r for r in pool if key(r) == best])[0]
     return None
 
 
@@ -222,6 +265,8 @@ def ladder(db, pid, mode):
 def start_play(db, uid, pid, mode):
     if mode not in MODES:
         raise ValueError("modo desconocido")
+    # Every problem started brings the failed ones one step closer to coming back
+    db.execute("UPDATE queue SET priority = MIN(0, priority + 1) WHERE user_id = ? AND priority < 0", (uid,))
     cur = db.execute("INSERT INTO plays (user_id, problem_id, mode, game, started) VALUES (?, ?, ?, ?, ?)",
                      (uid, pid, mode, mode, time.time()))
     db.commit()
@@ -306,6 +351,8 @@ def answer(db, play_id, uid, step, text, fix_text=""):
                (tries + 1, step, str(fix_text)[:300], str(text)[:80], 1 if right else 0,
                 now if right else None, round(now - started, 1) if right else None, points, play_id))
     db.commit()
+    if not right and tries == 0:  # the first wrong answer counts as failing it
+        mark_failed(db, uid, pid)
     out = {"right": right, "value": show(value), "tries": tries + 1, "hints": hints, "points": round(points)}
     if right:
         out["qwen_correct"] = bool(qwen_correct)
@@ -324,6 +371,7 @@ def give_up(db, play_id, uid):
     db.execute("UPDATE plays SET solved = -1, finished = ?, seconds = ? WHERE id = ?",
                (now, round(now - started, 1), play_id))
     db.commit()
+    mark_failed(db, uid, pid)
     return {"value": correct_value, "qwen_correct": bool(qwen_correct)}
 
 

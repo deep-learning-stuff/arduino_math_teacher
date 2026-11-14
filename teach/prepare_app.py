@@ -120,6 +120,8 @@ def main():
                          "the page shows these texts, matched by id; everything else works in English")
     ap.add_argument("--hints-table", default="", choices=["", "hints", "hints_answer"],
                     help="which Qwen hints to show (none until a pilot has been judged by hand)")
+    ap.add_argument("--twin-min", type=float, default=0.85,
+                    help="cosine similarity for two problems of the same topic to count as twins")
     ap.add_argument("--require-guide", action="store_true",
                     help="only problems with a verified worked solution (generate_worked.py)")
     args = ap.parse_args()
@@ -161,6 +163,7 @@ def main():
         ids = [a[0] for a in keep]
         db.execute(f"DELETE FROM problems WHERE id NOT IN ({','.join('?' * len(ids))})", ids)
     counts = {}
+    vectors_of = {}  # id -> (topic, vector), for the twins
     for i in range(0, len(keep), 16):
         chunk = keep[i:i + 16]
         vectors = embed([a[3] for a in chunk])
@@ -168,6 +171,7 @@ def main():
             pid, level = a[0], a[1]
             scores = {key: max(dot(vec, v) for v in vecs) for key, vecs in type_vecs}
             kind = max(scores, key=scores.get)
+            vectors_of[pid] = (kind, vec)
             # The sibling: the most similar solved problem of a LOWER level, so it's
             # easier; only level-0 problems take a sibling of the same level.
             # Same topic, and similar enough: below MIN_SIBLING the pairs we looked at
@@ -193,6 +197,19 @@ def main():
             counts[(kind, tier_of(level))] = counts.get((kind, tier_of(level)), 0) + 1
         db.commit()
         print(f"\r{min(i + 16, len(keep))}/{len(keep)} problems prepared", end="", flush=True)
+
+    # Twins: other problems of the game, same topic, almost the same problem.
+    # Only very close pairs: the embeddings are reliable for near-duplicates
+    # (the two chess problems scored 0.91), not for loose likeness.
+    with_twins = 0
+    for pid, (kind, vec) in vectors_of.items():
+        near = sorted(((dot(vec, v2), q) for q, (k2, v2) in vectors_of.items()
+                       if q != pid and k2 == kind), reverse=True)
+        twins = [q for s, q in near if s >= args.twin_min][:3]
+        with_twins += bool(twins)
+        db.execute("UPDATE problems SET twins = ? WHERE id = ?", (json.dumps(twins), pid))
+    db.commit()
+    print(f"\n{with_twins}/{len(vectors_of)} problems have at least one twin (similarity >= {args.twin_min})")
     db.close()
 
     print(f"\nWrote {args.db} in {time.perf_counter() - start:.0f} s. Problems per type and tier:")
