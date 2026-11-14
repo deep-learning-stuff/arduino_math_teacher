@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+"""Turn Qwen's stored attempts into the problems of the "Correct Qwen" game.
+
+    python3 teach/prepare_app.py          # data/teach.db + data/index.db -> data/app.db
+
+For every attempt it keeps the usable ones (at least 2 steps, most of them with
+numbers), and adds with the embedding model:
+  - its type: the closest of the six types in teach/kinds.py
+  - its tier: from the M3Kang level
+  - a similar solved problem from the training set, for the second hint
+Run it again whenever generate_solutions.py has added attempts. Student data in
+data/app.db is never touched.
+"""
+import argparse
+import json
+import os
+import re
+import sqlite3
+import sys
+import time
+from array import array
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from copilot.embed import embed  # noqa: E402
+from teach.game import connect  # noqa: E402
+from teach.kinds import TYPES, tier_of  # noqa: E402
+
+DIGIT = re.compile(r"\d")
+
+
+def usable(steps):
+    with_numbers = sum(bool(DIGIT.search(s)) for s in steps)
+    return len(steps) >= 2 and with_numbers * 2 >= len(steps)
+
+
+def dot(a, b):
+    return sum(x * y for x, y in zip(a, b))
+
+
+def load_index(path):
+    rows = []
+    db = sqlite3.connect(path)
+    for _key, problem, blob in db.execute("SELECT key, problem, vec FROM problems"):
+        p = json.loads(problem)
+        if not p.get("options") or p["label"] not in p["options"]:
+            continue  # the hint shows the neighbour's answer, so it needs one
+        vec = array("f")
+        vec.frombytes(blob)
+        rows.append((p, vec))
+    db.close()
+    return rows
+
+
+def clean(text):
+    """Drop the question number at the start, such as '22. '."""
+    return re.sub(r"^\s*\d+\.\s*", "", text).strip()
+
+
+def load_texts(paths):
+    """{id: text} from M3Kang jsonl files in another language. Missing files are fine."""
+    texts = {}
+    for path in paths:
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                for line in f:
+                    if line.strip():
+                        p = json.loads(line)
+                        texts[p["id"]] = clean(p["text"])
+    return texts
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--attempts", default="data/teach.db")
+    ap.add_argument("--index", default="data/index.db")
+    ap.add_argument("--db", default="data/app.db")
+    ap.add_argument("--catalan", default="data/cat/train.jsonl,data/cat/val.jsonl",
+                    help="M3Kang in Catalan (prepare_m3kang.py --languages cat --no-ocr --out data/cat): "
+                         "the page shows these texts, matched by id; everything else works in English")
+    ap.add_argument("--hints-table", default="", choices=["", "hints", "hints_answer"],
+                    help="which Qwen hints to show (none until a pilot has been judged by hand)")
+    args = ap.parse_args()
+    start = time.perf_counter()
+    catalan = load_texts(args.catalan.split(","))
+    print(f"{len(catalan)} problems in Catalan")
+
+    src = sqlite3.connect(args.attempts)
+    attempts = src.execute("SELECT id, level, year, text, options, label, correct_value, steps, "
+                           "qwen_answer, qwen_correct, qwen_letter FROM attempts WHERE status = 'ok'").fetchall()
+    hints = {}
+    if args.hints_table:  # hints from generate_hints.py, only the ones that passed the checks in code
+        hints = dict(src.execute(f"SELECT id, hint FROM {args.hints_table} WHERE ok = 1"))
+    src.close()
+    keep = [a for a in attempts if usable(json.loads(a[7]))]
+    print(f"{len(attempts)} attempts, {len(keep)} usable, {len(hints)} Qwen hints")
+
+    # Each type is described by a few sentences; a problem's score for a type is
+    # its best similarity to one of them.
+    type_vecs = [(t["key"], embed(t["describe"], query=True)) for t in TYPES]
+    index = load_index(args.index)
+    print(f"{len(index)} training problems with answers for the similar-problem hint")
+
+    db = connect(args.db)
+    counts = {}
+    for i in range(0, len(keep), 16):
+        chunk = keep[i:i + 16]
+        vectors = embed([a[3] for a in chunk])
+        for a, vec in zip(chunk, vectors):
+            pid, level = a[0], a[1]
+            scores = {key: max(dot(vec, v) for v in vecs) for key, vecs in type_vecs}
+            kind = max(scores, key=scores.get)
+            # The sibling: the most similar solved problem of a LOWER level, so it's
+            # easier; only level-0 problems take a sibling of the same level.
+            best = None
+            for p, v in index:
+                if p["id"] == pid or p["level"] > level or (p["level"] == level and level > 0):
+                    continue
+                s = dot(vec, v)
+                if best is None or s > best[0]:
+                    best = (s, p)
+            similar = None
+            if best:
+                p = best[1]
+                similar = json.dumps({"id": p["id"], "level": p["level"], "score": round(best[0], 3),
+                                      "text": clean(p["text"]), "text_ca": catalan.get(p["id"]),
+                                      "answer": p["options"][p["label"]]}, ensure_ascii=False)
+            db.execute("INSERT OR REPLACE INTO problems (id, level, tier, year, type, type_score, text, options, "
+                       "label, correct_value, steps, qwen_answer, qwen_correct, qwen_letter, similar, hint, text_ca) "
+                       "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (
+                           pid, level, tier_of(level), a[2], kind, round(scores[kind], 3), a[3], a[4], a[5],
+                           a[6], a[7], a[8], a[9], a[10], similar, hints.get(pid), catalan.get(pid)))
+            counts[(kind, tier_of(level))] = counts.get((kind, tier_of(level)), 0) + 1
+        db.commit()
+        print(f"\r{min(i + 16, len(keep))}/{len(keep)} problems prepared", end="", flush=True)
+    db.close()
+
+    print(f"\nWrote {args.db} in {time.perf_counter() - start:.0f} s. Problems per type and tier:")
+    for t in TYPES:
+        row = [counts.get((t["key"], tier), 0) for tier in (1, 2, 3)]
+        print(f"  {t['name']:10} fácil {row[0]:3}  medio {row[1]:3}  difícil {row[2]:3}")
+
+
+if __name__ == "__main__":
+    main()
