@@ -236,7 +236,7 @@ def pick(db, uid, kind=None, rng=random, mode="solve"):
     Never above the current tier: if it has nothing left, an easier tier, and
     if that has nothing either, None. Among the unsolved problems of a tier, the
     highest priority wins (twins of a failed problem first, failed problems
-    last), then problems never seen, then chance.
+    last), then problems with hints, then problems never seen, then chance.
     """
     s = stats(db, uid)["types"]
     kinds = [kind] if kind else [k for k in TYPE_KEYS if s[k]["tier"]]
@@ -244,7 +244,8 @@ def pick(db, uid, kind=None, rng=random, mode="solve"):
     for k in kinds:
         target = s[k]["tier"] or 3
         rows = db.execute("""
-            SELECT p.id, p.tier, COUNT(pl.id), MAX(pl.solved = 1), COALESCE(q.priority, 0) FROM problems p
+            SELECT p.id, p.tier, COUNT(pl.id), MAX(pl.solved = 1), COALESCE(q.priority, 0),
+                   COALESCE(p.guide, '') NOT IN ('', '[]') FROM problems p
             LEFT JOIN plays pl ON pl.problem_id = p.id AND pl.user_id = ?
             LEFT JOIN queue q ON q.problem_id = p.id AND q.user_id = ?
             WHERE p.type = ? AND (? = 'solve' OR p.steps <> '[]')   -- correct mode needs Qwen's attempt
@@ -253,9 +254,10 @@ def pick(db, uid, kind=None, rng=random, mode="solve"):
         # (priority > 0) is allowed from any tier: it's almost the same problem.
         pool = [r for r in rows if not r[3] and (r[1] <= target or r[4] > 0)]
         if pool:
-            # Highest priority first; then the current tier before easier ones;
+            # Highest priority first; then problems with a verified step-by-step
+            # solution (they have hints); then the current tier before easier ones;
             # then problems never seen; then chance. Failed ones (negative) last.
-            key = lambda r: (r[4], r[1] == target, r[1], r[2] == 0)  # noqa: E731
+            key = lambda r: (r[4], r[5], r[1] == target, r[1], r[2] == 0)  # noqa: E731
             best = max(key(r) for r in pool)
             return rng.choice([r for r in pool if key(r) == best])[0]
     return None
