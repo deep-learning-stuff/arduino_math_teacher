@@ -32,6 +32,7 @@ from teach.kinds import TIERS, TYPE_KEYS, TYPES
 SOLVED_TO_CLEAR = 2
 POINTS = {1: 10, 2: 20, 3: 30}            # per problem solved without help
 HELP_FACTOR = [1.0, 0.75, 0.5, 0.35, 0.25]  # by number of rungs used
+TRY_FACTOR = [1.0, 0.75, 0.5, 0.25]
 LADDERS = {"solve": ["qwen_hint", "sibling", "attempt", "options"],
            "correct": ["qwen_hint", "sibling", "options"]}
 MODES = tuple(LADDERS)
@@ -145,6 +146,27 @@ def available(db):
     return counts
 
 
+def streaks(db, uid):
+    """Independent exercise streaks; untouched open plays do not count.
+
+    A hint breaks no_help immediately, a wrong answer breaks first_try.
+    Giving up breaks both. A later success without help can still extend no_help.
+    """
+    out = {k: {"current": 0, "best": 0} for k in ("no_help", "first_try")}
+    rows = db.execute("SELECT solved, hints, tries FROM plays WHERE user_id = ? "
+                      "ORDER BY started, id", (uid,)).fetchall()
+    for solved, hints, tries in rows:
+        for key, broken in (("no_help", hints > 0 or solved == -1),
+                            ("first_try", solved == -1 or tries > 1 or (tries > 0 and solved != 1))):
+            s = out[key]
+            if broken:
+                s["current"] = 0
+            elif solved == 1:
+                s["current"] += 1
+                s["best"] = max(s["best"], s["current"])
+    return out
+
+
 def stats(db, uid):
     """Per type: hexagon points (0-100), problems solved per tier, cleared tiers, current tier."""
     avail = available(db)
@@ -159,7 +181,7 @@ def stats(db, uid):
         s["clean" if hints == 0 else "helped"][tier] += 1
         s["points"] += points or 0
     for kind, s in out.items():
-        s["points"] = min(100, round(s["points"]))
+        s["points"] = min(100, round(s["points"], 2))
         need = {t: min(SOLVED_TO_CLEAR, avail[kind][t]) for t in (1, 2, 3)}
         s["need"] = need
         # A tier with no problems never blocks the way, but gives no medal
@@ -168,7 +190,8 @@ def stats(db, uid):
         s["tier"] = next((t for t in (1, 2, 3) if t not in passed), None)  # None = mastered
     totals = db.execute("SELECT COUNT(*), SUM(solved = 1), SUM(solved = 1 AND hints = 0) FROM plays "
                         "WHERE user_id = ? AND finished IS NOT NULL", (uid,)).fetchone()
-    return {"types": out, "plays": totals[0] or 0, "solved": totals[1] or 0, "clean": totals[2] or 0}
+    return {"types": out, "plays": totals[0] or 0, "solved": totals[1] or 0, "clean": totals[2] or 0,
+            "streaks": streaks(db, uid)}
 
 
 def pick(db, uid, kind=None, rng=random):
@@ -291,13 +314,14 @@ def answer(db, play_id, uid, step, text, fix_text=""):
     else:
         step, right = None, right_value
     now = time.time()
-    points = POINTS[tier] * HELP_FACTOR[min(hints, len(HELP_FACTOR) - 1)] if right else 0
+    points = round(POINTS[tier] * HELP_FACTOR[min(hints, len(HELP_FACTOR) - 1)]
+                   * TRY_FACTOR[min(tries, len(TRY_FACTOR) - 1)], 2) if right else 0
     db.execute("UPDATE plays SET tries = ?, step_marked = ?, fix_text = ?, answer = ?, solved = ?, "
                "finished = ?, seconds = ?, points = ? WHERE id = ?",
                (tries + 1, step, str(fix_text)[:300], str(text)[:80], 1 if right else 0,
                 now if right else None, round(now - started, 1) if right else None, points, play_id))
     db.commit()
-    out = {"right": right, "value": show(value), "tries": tries + 1, "hints": hints, "points": round(points)}
+    out = {"right": right, "value": show(value), "tries": tries + 1, "hints": hints, "points": points}
     if right:
         out["qwen_correct"] = bool(qwen_correct)
     elif right_value and qwen_correct and mode == "correct":
@@ -348,8 +372,8 @@ def history(db, uid):
                 if need[kind][tier] and clean[kind][tier] == need[kind][tier]:
                     medal = tier
         out.append({"t": finished, "type": kind, "tier": tier, "mode": mode, "solved": solved,
-                    "hints": hints, "points": round(points or 0), "medal": medal,
-                    "total": sum(round(v) for v in type_points.values())})  # same rounding as stats()
+                    "hints": hints, "points": round(points or 0, 2), "medal": medal,
+                    "total": round(sum(round(v, 2) for v in type_points.values()), 2)})
     return {"plays": out, "max": 100 * len(TYPE_KEYS)}
 
 

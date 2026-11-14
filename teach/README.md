@@ -104,3 +104,31 @@ The page never receives the correct answer before the student finds it or gives 
 M3Kang is licensed for research use only. `data/`, `*.db` and `*.gguf` are in
 `.gitignore`: never force-add them. The demo problems in `make_demo_db.py` are
 made up and can be shared.
+
+
+## Scoring and exercise streaks
+
+New answers earn 10 / 20 / 30 base points by tier. Multiply by the existing
+help factor (1, .75, .5, .35, .25) and the attempt factor (1, .75, .5, .25
+for the first, second, third, and fourth or later answer). Store and display
+two-decimal precision; historical stored scores are preserved. Invalid input
+does not consume an attempt. Time does not affect points.
+
+The dashboard shows current and best exercise streaks, shared across modes:
+- **Sin pistas:** consecutive solved exercises without help. Opening a help
+  rung or giving up breaks it; a wrong answer alone does not.
+- **A la primera:** consecutive exercises solved on the first submitted valid
+  answer, with or without help. A wrong answer or giving up breaks it.
+
+Untouched open exercises do not count. Streaks are reconstructed from stored
+plays, including historical attempts, and survive restarting the server.
+They are exercise streaks, not daily streaks.
+
+The radar uses square-root radial scaling with rings at 10, 25, 50 and 100
+points, making early progress visible. The labels retain actual point values.
+
+Run the regression checks with `python -B -m unittest teach.test_progress -v`.
+
+Each streak has an animated flame with a distinct silhouette at 0, 1, 3, 5
+and 10 exercises. Motion respects reduced-motion preferences. The desktop
+dashboard fits the radar, streaks and history above the coloured topic cards.
