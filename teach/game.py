@@ -96,11 +96,11 @@ def evaluate(text):
     expr = (str(text).strip().replace("×", "*").replace("x", "*").replace("X", "*")
             .replace("÷", "/").replace("−", "-").replace("^", "**").replace(",", "."))
     if not expr or len(expr) > 80:
-        raise ValueError("escribe un número o una cuenta corta")
+        raise ValueError("type a number or a short calculation")
     try:
         tree = ast.parse(expr, mode="eval")
     except SyntaxError as error:
-        raise ValueError("no entiendo esa cuenta") from error
+        raise ValueError("I can't read that calculation") from error
 
     def walk(node):
         if isinstance(node, ast.Expression):
@@ -114,12 +114,12 @@ def evaluate(text):
             left, right = walk(node.left), walk(node.right)
             if isinstance(node.op, ast.Pow):
                 if right.denominator != 1 or abs(right) > 12:
-                    raise ValueError("solo potencias enteras pequeñas")
+                    raise ValueError("only small whole powers")
                 return left ** int(right)
             if isinstance(node.op, ast.Div) and right == 0:
-                raise ValueError("división por cero")
+                raise ValueError("division by zero")
             return _OPS[type(node.op)](left, right)
-        raise ValueError("solo números, + - * / ^ y paréntesis")
+        raise ValueError("only numbers, + - * / ^ and brackets")
 
     return walk(tree)
 
@@ -138,7 +138,7 @@ def show(value):
 def user_id(db, name):
     name = " ".join(name.split())[:30]
     if not name:
-        raise ValueError("escribe tu nombre")
+        raise ValueError("type your name")
     db.execute("INSERT OR IGNORE INTO users (name, created) VALUES (?, ?)", (name, time.time()))
     db.commit()
     return db.execute("SELECT id FROM users WHERE name = ?", (name,)).fetchone()[0]
@@ -288,7 +288,7 @@ def ladder(db, pid, mode):
 
 def start_play(db, uid, pid, mode):
     if mode not in MODES:
-        raise ValueError("modo desconocido")
+        raise ValueError("unknown mode")
     # Every problem started brings the failed ones one step closer to coming back
     db.execute("UPDATE queue SET priority = MIN(0, priority + 1) WHERE user_id = ? AND priority < 0", (uid,))
     cur = db.execute("INSERT INTO plays (user_id, problem_id, mode, game, started) VALUES (?, ?, ?, ?, ?)",
@@ -301,7 +301,7 @@ def _play(db, play_id, uid):
     r = db.execute("SELECT problem_id, hints, tries, solved, started, game, help_kinds FROM plays "
                    "WHERE id = ? AND user_id = ?", (play_id, uid)).fetchone()
     if not r:
-        raise ValueError("partida no encontrada")
+        raise ValueError("play not found")
     return r
 
 
@@ -312,7 +312,7 @@ def help_rung(db, play_id, uid):
         raise ValueError("esta partida ya ha terminado")
     rungs = ladder(db, pid, mode)
     if hints >= len(rungs):
-        raise ValueError("ya no quedan más ayudas")
+        raise ValueError("no more help left")
     kind = rungs[hints]
     db.execute("UPDATE plays SET hints = ?, help_kinds = ? WHERE id = ?",
                (hints + 1, ",".join(filter(None, [used, kind])), play_id))
@@ -340,7 +340,7 @@ def check_sibling(db, play_id, uid, text):
     pid = _play(db, play_id, uid)[0]
     similar = db.execute("SELECT similar FROM problems WHERE id = ?", (pid,)).fetchone()[0]
     if not similar:
-        raise ValueError("este problema no tiene problema hermano")
+        raise ValueError("this problem has no sibling problem")
     value = evaluate(text)
     expected = json.loads(similar)["answer"]
     try:
@@ -361,10 +361,10 @@ def answer(db, play_id, uid, step, text, fix_text=""):
     right_value = value == evaluate(correct_value)
     if mode == "correct":
         if step is None:
-            raise ValueError("marca primero el paso donde falla Qwen")
+            raise ValueError("first mark the step where Qwen goes wrong")
         step = int(step)
         if not 0 <= step <= len(json.loads(steps)):
-            raise ValueError("paso fuera de rango")
+            raise ValueError("step out of range")
         right = right_value and (not qwen_correct or step == 0)  # if Qwen was right, only "no mistake" wins
     else:
         step, right = None, right_value
@@ -382,7 +382,7 @@ def answer(db, play_id, uid, step, text, fix_text=""):
     if right:
         out["qwen_correct"] = bool(qwen_correct)
     elif right_value and qwen_correct and mode == "correct":
-        out["message"] = "El número es correcto… ¿seguro que Qwen se ha equivocado?"
+        out["message"] = "The number is right... but are you sure Qwen made a mistake?"
     return out
 
 

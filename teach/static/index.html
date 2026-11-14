@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -318,10 +318,10 @@
   <div class="login">
     <img class="mark" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%0A%20%20%3Ctitle%3EMateQwen%3C%2Ftitle%3E%0A%20%20%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%2290%22%20height%3D%2290%22%20rx%3D%2223%22%20fill%3D%22%23ad492c%22%2F%3E%0A%20%20%3Cg%20transform%3D%22translate%288%2013%29%20scale%28.82%29%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2243%22%20cy%3D%2243%22%20r%3D%2223%22%20fill%3D%22none%22%20stroke%3D%22%23fff5e2%22%20stroke-width%3D%229%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22m35%2056%2013%2014%2017-38h13%22%20fill%3D%22none%22%20stroke%3D%22%23ad492c%22%20stroke-width%3D%2215%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22m35%2056%2013%2014%2017-38h13%22%20fill%3D%22none%22%20stroke%3D%22%23ffd18b%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E%0A" alt="" width="120" height="120">
     <h1>MateQwen</h1>
-    <p>Entrena con problemas del Canguro. Resuélvelos con ayudas que nunca te dan la respuesta, o caza los errores de una IA que casi siempre se equivoca.</p>
+    <p>Train with Math Kangaroo problems. Solve them with help that never gives the answer away, or catch the mistakes of an AI that is almost always wrong.</p>
     <form id="login-form">
-      <input id="name" placeholder="¿Cómo te llamas?" autocomplete="off" aria-label="Tu nombre" required>
-      <button class="btn-go">Empezar</button>
+      <input id="name" placeholder="What's your name?" autocomplete="off" aria-label="Your name" required>
+      <button class="btn-go">Start</button>
     </form>
   </div>
 </section>
@@ -335,36 +335,36 @@
           <span>MateQwen</span>
         </div>
         <span class="who" id="who"></span>
-        <button class="btn-quiet" id="logout">Cambiar de alumno</button>
+        <button class="btn-quiet" id="logout">Switch student</button>
       </div>
       <div class="progress">
         <div>
           <h1 class="hello" id="hello"></h1>
-          <div class="hexbox"><svg id="hex" viewBox="-235 -195 470 390" role="img" aria-label="Puntos por tema"></svg></div><p class="scale-note">Anillos: 10 · 25 · 50 · 100 puntos (escala ampliada al inicio).</p>
+          <div class="hexbox"><svg id="hex" viewBox="-235 -195 470 390" role="img" aria-label="Points per topic"></svg></div><p class="scale-note">Rings: 10, 25, 50 and 100 points (the scale is stretched near the centre).</p>
           <div class="facts">
-            <div><b id="f-solved">0</b><span>resueltos</span></div>
-            <div><b id="f-clean">0</b><span>sin ayuda</span></div>
-            <div><b id="f-medals">0</b><span>medallas</span></div>
+            <div><b id="f-solved">0</b><span>solved</span></div>
+            <div><b id="f-clean">0</b><span>no help</span></div>
+            <div><b id="f-medals">0</b><span>medals</span></div>
           </div>
         </div>
         <div>
-          <h2>Tus rachas</h2>
+          <h2>Your streaks</h2>
           <div class="runs" id="runs"></div>
-          <p class="run-rules">Pedir una pista rompe la primera racha. Fallar rompe la segunda. Rendirse rompe ambas.</p>
+          <p class="run-rules">Asking for a hint breaks the first streak. A wrong answer breaks the second. Giving up breaks both.</p>
           <div class="evo-head">
-            <h2>Tu evolución</h2>
-            <span class="total"><b id="total">0</b> de <span class="num" id="total-max">600</span> puntos</span>
+            <h2>Your progress</h2>
+            <span class="total"><b id="total">0</b> of <span class="num" id="total-max">600</span> points</span>
           </div>
           <div class="chart" id="chart"></div>
           <div class="streak">
-            <span>Últimos problemas</span>
+            <span>Latest problems</span>
             <div class="dots" id="dots"></div>
           </div>
           <div class="history-actions">
             <div class="legend">
-              <span><i class="dot clean"></i>Sin ayuda</span>
-              <span><i class="dot helped"></i>Con ayuda</span>
-              <span><i class="dot failed"></i>No resuelto</span>
+              <span><i class="dot clean"></i>No help</span>
+              <span><i class="dot helped"></i>With help</span>
+              <span><i class="dot failed"></i>Not solved</span>
             </div>
             <button class="btn-quiet" id="as-table"></button>
           </div>
@@ -375,10 +375,10 @@
 
   <div class="wrap topics">
     <div class="topics-head">
-      <h2>Elige un tema</h2>
+      <h2>Pick a topic</h2>
       <div class="free">
-        <button class="btn-go" id="free-solve">Problema sorpresa</button>
-        <button id="free-correct">Corregir a Qwen sorpresa</button>
+        <button class="btn-go" id="free-solve">Surprise problem</button>
+        <button id="free-correct">Surprise: correct Qwen</button>
       </div>
     </div>
     <div class="mosaic" id="mosaic"></div>
@@ -389,7 +389,7 @@
   <div class="band">
     <div class="wrap">
       <div class="bar-top">
-        <button class="btn-quiet" id="back"><svg class="icon"><use href="#i-back"/></svg>Volver</button>
+        <button class="btn-quiet" id="back"><svg class="icon"><use href="#i-back"/></svg>Back</button>
         <span style="flex:1"></span>
         <span class="who" id="who2"></span>
       </div>
@@ -402,36 +402,36 @@
 
   <div class="wrap work">
     <div id="correct-part" class="hidden">
-      <h2 id="steps-title">¿En qué paso se equivoca Qwen?</h2>
+      <h2 id="steps-title">In which step does Qwen go wrong?</h2>
       <div class="steps" id="steps" role="group" aria-labelledby="steps-title"></div>
-      <div class="says"><svg class="icon"><use href="#i-bot"/></svg>Qwen dice que la respuesta es <b id="qwen-says"></b></div>
+      <div class="says"><svg class="icon"><use href="#i-bot"/></svg>Qwen says the answer is <b id="qwen-says"></b></div>
     </div>
 
     <div class="answer">
-      <h2>Tu respuesta</h2>
-      <label id="fix-wrap" class="hidden" style="display:grid;gap:8px;font-weight:700">Cómo debería ser el paso <span id="fix-n"></span> (si quieres)
-        <textarea id="fix" rows="2" placeholder="Escribe el paso corregido"></textarea></label>
+      <h2>Your answer</h2>
+      <label id="fix-wrap" class="hidden" style="display:grid;gap:8px;font-weight:700">How step <span id="fix-n"></span> should read (optional)
+        <textarea id="fix" rows="2" placeholder="Write the corrected step"></textarea></label>
       <div class="row">
-        <input id="answer" autocomplete="off" inputmode="decimal" placeholder="Escribe un número" aria-label="Tu respuesta">
-        <button class="btn-go" id="check">Comprobar</button>
+        <input id="answer" autocomplete="off" inputmode="decimal" placeholder="Type a number" aria-label="Your answer">
+        <button class="btn-go" id="check">Check</button>
       </div>
-      <p class="hint-line">También vale una cuenta, como 40/20*3. Los puntos bajan con las pistas y los intentos: por intentos conservas el 100 %, 75 %, 50 % y, desde el cuarto, el 25 %; las pistas reducen además esa recompensa.</p>
+      <p class="hint-line">A calculation works too, like 40/20*3. Points go down with hints and with tries: you keep 100%, 75%, 50% and, from the fourth try on, 25%; hints lower the reward further.</p>
       <div id="feedback" class="feedback hidden" role="status"></div>
       <div class="after hidden" id="after">
-        <button class="btn-go" id="next">Siguiente problema</button>
-        <button id="home-btn">Volver a los temas</button>
+        <button class="btn-go" id="next">Next problem</button>
+        <button id="home-btn">Back to the topics</button>
       </div>
     </div>
 
     <div id="help-zone">
-      <h2>¿Atascado? Revela un paso de la solución</h2>
+      <h2>Stuck? Reveal a step of the solution</h2>
       <div class="ladder" id="ladder"></div>
       <div class="helps" id="helps"></div>
     </div>
 
     <div class="bottom">
       <span class="spacer"></span>
-      <button class="quiet" id="giveup"><svg class="icon"><use href="#i-flag"/></svg>Me rindo, enséñame la respuesta</button>
+      <button class="quiet" id="giveup"><svg class="icon"><use href="#i-flag"/></svg>I give up, show me the answer</button>
     </div>
   </div>
 </section>
@@ -441,11 +441,11 @@
 const $ = (s) => document.querySelector(s);
 let META = null, USER = null, STATS = null, HISTORY = null, PLAY = null, KIND = null, MODE = "solve", picked = null;
 const HELP_INFO = {
-  guide: { icon: "ladder", name: "Siguiente paso", note: "Un paso de una solución comprobada" },
-  qwen_hint: { icon: "bulb", name: "Una pregunta", note: "Te hace fijarte en algo clave" },
-  sibling: { icon: "ladder", name: "Problema hermano", note: "Uno parecido, más fácil" },
-  attempt: { icon: "bot", name: "Intento de Qwen", note: "Busca dónde falla" },
-  options: { icon: "options", name: "Las 5 opciones", note: "La última ayuda" },
+  guide: { icon: "ladder", name: "Next step", note: "One step of a checked solution" },
+  qwen_hint: { icon: "bulb", name: "A question", note: "Points you at something key" },
+  sibling: { icon: "ladder", name: "Sibling problem", note: "A similar, easier one" },
+  attempt: { icon: "bot", name: "Qwen's attempt", note: "Find where it fails" },
+  options: { icon: "options", name: "The 5 options", note: "The last help" },
 };
 
 function store(k, v) { try { v === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
@@ -453,7 +453,7 @@ function stored(k) { try { return localStorage.getItem(k); } catch (e) { return 
 async function api(path, body) {
   const res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Algo ha fallado");
+  if (!res.ok) throw new Error(data.error || "Something went wrong");
   return data;
 }
 function toast(text) { const t = $("#toast"); t.textContent = text; t.classList.remove("hidden"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.add("hidden"), 3000); }
@@ -488,7 +488,7 @@ function drawHex() {
     h += `<text x="${lx}" y="${ly + 19 + dy}" text-anchor="${anchor}" font-size="17" font-weight="700" fill="var(--sun)" font-family="var(--display)" style="font-variant-numeric:tabular-nums">${STATS.types[t.key].points}</text>`;
   });
   $("#hex").innerHTML = h;
-  $("#hex").setAttribute('aria-label', 'Progreso por tema, escala ampliada al inicio. ' + META.types.map(t => `${t.name}: ${STATS.types[t.key].points} de 100`).join(', '));
+  $("#hex").setAttribute('aria-label', 'Progress per topic, scale stretched near the centre. ' + META.types.map(t => `${t.name}: ${STATS.types[t.key].points} of 100`).join(', '));
   $("#total").textContent = Number(META.types.reduce((s, t) => s + STATS.types[t.key].points, 0).toFixed(2));
   $("#total-max").textContent = 100 * n;
 }
@@ -497,16 +497,16 @@ function drawHex() {
 let tableView = false;
 function drawChart() {
   const box = $("#chart"), plays = HISTORY.plays;
-  $("#as-table").innerHTML = tableView ? `${icon("chart")}Ver como gráfica` : `${icon("list")}Ver como tabla`;
+  $("#as-table").innerHTML = tableView ? `${icon("chart")}Show as a chart` : `${icon("list")}Show as a table`;
   box.innerHTML = "";
   if (tableView) {
-    box.innerHTML = `<div class="tablewrap"><table class="data"><thead><tr><th>#</th><th>Tema</th><th>Resultado</th><th>Total</th></tr></thead><tbody>${
-      plays.map((p, i) => `<tr><td>${i + 1}</td><td>${esc(typeOf(p.type).name)}</td><td>${p.solved === 1 ? (p.hints ? `Con ${p.hints} ayuda${p.hints > 1 ? "s" : ""}, +${p.points}` : `Sin ayuda, +${p.points}`) : "No resuelto"}${p.medal ? `, medalla de ${META.tiers[p.medal - 1].medal.toLowerCase()}` : ""}</td><td>${p.total}</td></tr>`).reverse().join("")
+    box.innerHTML = `<div class="tablewrap"><table class="data"><thead><tr><th>#</th><th>Topic</th><th>Result</th><th>Total</th></tr></thead><tbody>${
+      plays.map((p, i) => `<tr><td>${i + 1}</td><td>${esc(typeOf(p.type).name)}</td><td>${p.solved === 1 ? (p.hints ? `With ${p.hints} hint${p.hints > 1 ? "s" : ""}, +${p.points}` : `No help, +${p.points}`) : "Not solved"}${p.medal ? `, ${META.tiers[p.medal - 1].medal.toLowerCase()} medal` : ""}</td><td>${p.total}</td></tr>`).reverse().join("")
     }</tbody></table></div>`;
     return;
   }
   if (plays.length < 2) {
-    box.innerHTML = `<div class="empty"><p>Cuando termines dos problemas, aquí verás cómo crece tu hexágono.</p></div>`;
+    box.innerHTML = `<div class="empty"><p>Finish two problems and you'll see your hexagon grow here.</p></div>`;
     return;
   }
   const W = Math.max(box.clientWidth, 280), H = Math.max(box.clientHeight, 128), m = { l: 36, r: 14, t: 16, b: 30 };
@@ -515,15 +515,15 @@ function drawChart() {
   const y = (v) => m.t + (H - m.t - m.b) * (1 - v / maxY);
   const svg = document.createElementNS(SVGNS, "svg");
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", `Tu total pasó de ${plays[0].total} a ${plays[plays.length - 1].total} puntos en ${plays.length} problemas`);
+  svg.setAttribute("aria-label", `Your total went from ${plays[0].total} to ${plays[plays.length - 1].total} points in ${plays.length} problems`);
   let g = "";
   for (let k = 0; k <= 4; k++) {
     const v = maxY * k / 4;
     g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--band-line)" stroke-width="1"/>`;
     g += `<text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="var(--band-soft)" style="font-variant-numeric:tabular-nums">${Math.round(v)}</text>`;
   }
-  g += `<text x="${m.l}" y="${H - 8}" font-size="12" fill="var(--band-soft)">Problema 1</text>`;
-  g += `<text x="${W - m.r}" y="${H - 8}" text-anchor="end" font-size="12" fill="var(--band-soft)">Problema ${plays.length}</text>`;
+  g += `<text x="${m.l}" y="${H - 8}" font-size="12" fill="var(--band-soft)">Problem 1</text>`;
+  g += `<text x="${W - m.r}" y="${H - 8}" text-anchor="end" font-size="12" fill="var(--band-soft)">Problem ${plays.length}</text>`;
   const d = plays.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p.total).toFixed(1)}`).join(" ");
   g += `<path d="${d} L${x(plays.length - 1)},${y(0)} L${x(0)},${y(0)}Z" fill="var(--plot-fill)"/>`;
   g += `<path class="draw" d="${d}" fill="none" stroke="var(--sun)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
@@ -545,8 +545,8 @@ function drawChart() {
     const i = Math.max(0, Math.min(last, Math.round((px - m.l) / ((W - m.l - m.r) / last)))), p = plays[i];
     for (const el of [cross]) { el.setAttribute("x1", x(i)); el.setAttribute("x2", x(i)); el.setAttribute("visibility", "visible"); }
     dot.setAttribute("cx", x(i)); dot.setAttribute("cy", y(p.total)); dot.setAttribute("visibility", "visible");
-    const res = p.solved === 1 ? (p.hints ? `con ${p.hints} ayuda${p.hints > 1 ? "s" : ""}, +${p.points}` : `sin ayuda, +${p.points}`) : "no resuelto";
-    tip.innerHTML = `<b>Problema ${i + 1}</b>, ${esc(typeOf(p.type).name)}<br>Total ${p.total} (${res})${p.medal ? `<br>Medalla de ${META.tiers[p.medal - 1].medal.toLowerCase()}` : ""}`;
+    const res = p.solved === 1 ? (p.hints ? `with ${p.hints} hint${p.hints > 1 ? "s" : ""}, +${p.points}` : `no help, +${p.points}`) : "not solved";
+    tip.innerHTML = `<b>Problem ${i + 1}</b>, ${esc(typeOf(p.type).name)}<br>Total ${p.total} (${res})${p.medal ? `<br>${META.tiers[p.medal - 1].medal} medal` : ""}`;
     tip.style.left = `${(x(i) / W) * r.width}px`; tip.style.top = `${(y(p.total) / H) * r.height}px`;
     tip.classList.remove("hidden");
   });
@@ -556,8 +556,8 @@ function drawDots() {
   const recent = HISTORY.plays.slice(-18);
   $("#dots").innerHTML = recent.length ? recent.map((p) => {
     const k = p.solved !== 1 ? "failed" : p.hints ? "helped" : "clean";
-    return `<i class="dot ${k}" title="${esc(typeOf(p.type).name)}: ${{ clean: "sin ayuda", helped: "con ayuda", failed: "no resuelto" }[k]}"></i>`;
-  }).join("") : `<span style="color:var(--band-soft)">Todavía ninguno</span>`;
+    return `<i class="dot ${k}" title="${esc(typeOf(p.type).name)}: ${{ clean: "no help", helped: "with help", failed: "not solved" }[k]}"></i>`;
+  }).join("") : `<span style="color:var(--band-soft)">None yet</span>`;
 }
 $("#as-table").onclick = () => { tableView = !tableView; drawChart(); };
 window.addEventListener("resize", () => { if (!$("#home").classList.contains("hidden") && HISTORY) drawChart(); });
@@ -569,19 +569,19 @@ function nextType() {
   return open[0]?.key;
 }
 const FLAME_STAGES = [
-  { minimum: 10, name: "Llama relámpago", fill: "#e94226", core: "#ffbf40",
+  { minimum: 10, name: "Lightning flame", fill: "#e94226", core: "#ffbf40",
     outline: "M39 4c1 10-5 16-9 23L14 17c4 9 1 17-4 26C1 62 18 73 40 73s39-12 31-30c-4-9-7-17-3-25L52 29C53 20 46 10 39 4Z",
     sparks: '<path d="m9 9 2 4 4 2-4 2-2 4-2-4-4-2 4-2Zm62-4 2 4 4 2-4 2-2 4-2-4-4-2 4-2Z" />' },
-  { minimum: 5, name: "Llama de tres puntas", fill: "#eb5427", core: "#ffc84e",
+  { minimum: 5, name: "Three-tongued flame", fill: "#eb5427", core: "#ffc84e",
     outline: "M41 7c10 8 13 19 12 30 7-2 11-7 13-15 2 10 5 17 5 27 0 15-13 24-31 24S10 65 10 50c0-8 4-18 12-24-1 8 2 11 6 12-1-14 12-20 13-31Z",
     sparks: '<circle cx="13" cy="19" r="3"/><circle cx="66" cy="12" r="2.5"/>' },
-  { minimum: 3, name: "Llama de dos puntas", fill: "#ef672a", core: "#ffd25a",
+  { minimum: 3, name: "Two-tongued flame", fill: "#ef672a", core: "#ffd25a",
     outline: "M32 10c15 5 23 17 20 29 6-2 8-6 9-12 6 7 9 14 8 22-1 15-13 24-29 24S12 64 12 50c0-15 17-22 20-40Z",
     sparks: '<circle cx="62" cy="18" r="3"/>' },
-  { minimum: 1, name: "Llama inicial", fill: "#ef7936", core: "#ffdb68",
+  { minimum: 1, name: "First flame", fill: "#ef7936", core: "#ffdb68",
     outline: "M41 14c1 10 5 14 13 23 8 7 11 14 8 21-3 9-12 15-22 15S17 65 17 54c0-14 14-24 24-40Z",
     sparks: "" },
-  { minimum: 0, name: "Llama en reposo", fill: "#b7a89a", core: "#e8dacc",
+  { minimum: 0, name: "Resting flame", fill: "#b7a89a", core: "#e8dacc",
     outline: "M40 30c1 5 8 10 14 15 5 5 6 10 5 15-2 8-10 13-19 13s-18-5-19-14c-1-11 12-16 19-29Z",
     sparks: "" },
 ];
@@ -602,11 +602,11 @@ function flame(count) {
 }
 function renderHome() {
   $("#who").textContent = USER.name;
-  $("#hello").textContent = `¡Hola, ${USER.name}!`;
+  $("#hello").textContent = `Hi, ${USER.name}!`;
   drawHex(); drawDots();
-  $("#runs").innerHTML = [["no_help", "Sin pistas"], ["first_try", "A la primera"]].map(([key, label]) => {
+  $("#runs").innerHTML = [["no_help", "No hints"], ["first_try", "First try"]].map(([key, label]) => {
     const run = STATS.streaks[key];
-    return `<div class="run">${flame(run.current)}<div><div class="run-label">${label}</div><div class="run-value">${run.current} <small>${run.current === 1 ? "seguido" : "seguidos"}</small></div><p class="run-best">Tu récord: ${run.best}</p></div></div>`;
+    return `<div class="run">${flame(run.current)}<div><div class="run-label">${label}</div><div class="run-value">${run.current} <small>${run.current === 1 ? "in a row" : "in a row"}</small></div><p class="run-best">Your best: ${run.best}</p></div></div>`;
   }).join('');
   const next = nextType();
   let medals = 0;
@@ -616,19 +616,19 @@ function renderHome() {
       const k = tier.tier, won = s.cleared.includes(k), need = s.need[k];
       if (won) medals++;
       const cls = won ? "won" : s.tier === k ? "now" : "off";
-      const title = won ? `Medalla de ${tier.medal.toLowerCase()}` : need ? `${tier.name}: ${Math.min(s.clean[k], need)} de ${need} sin ayuda` : `${tier.name}: sin problemas todavía`;
+      const title = won ? `${tier.medal} medal` : need ? `${tier.name}: ${Math.min(s.clean[k], need)} of ${need} with no help` : `${tier.name}: no problems yet`;
       return `<span class="medal t${k} ${cls}" title="${title}"><svg viewBox="-17 -19 34 38"><polygon points="0,-17 15,-8.5 15,8.5 0,17 -15,8.5 -15,-8.5"/></svg><b>${won ? tier.medal[0] : need ? `${Math.min(s.clean[k], need)}/${need}` : "–"}</b></span>`;
     }).join("");
-    const status = s.tier === null ? "¡Dominado!" : META.tiers[s.tier - 1].name;
+    const status = s.tier === null ? "Mastered!" : META.tiers[s.tier - 1].name;
     const t2 = typeOf(t.key);
     return `<div class="tile ${t.key === next ? "next" : ""}" style="--c:${t2.color};--on:${onColor(t2.color)}">
-      <div class="head">${icon(t.key)}<h3>${t.name}</h3>${t.key === next ? `<span class="badge">Te toca</span>` : ""}</div>
-      <div class="score"><b>${s.points}</b><span>de 100</span></div>
+      <div class="head">${icon(t.key)}<h3>${t.name}</h3>${t.key === next ? `<span class="badge">Up next</span>` : ""}</div>
+      <div class="score"><b>${s.points}</b><span>of 100</span></div>
       <div class="meter"><i style="width:${s.points}%"></i></div>
       <div class="medals">${marks}<small>${status}</small></div>
       <div class="acts">
-        <button class="solve" data-type="${t.key}" data-mode="solve" ${total ? "" : "disabled"}>Resolver</button>
-        <button class="correct" data-type="${t.key}" data-mode="correct" ${total ? "" : "disabled"}>Corregir a Qwen</button>
+        <button class="solve" data-type="${t.key}" data-mode="solve" ${total ? "" : "disabled"}>Solve</button>
+        <button class="correct" data-type="${t.key}" data-mode="correct" ${total ? "" : "disabled"}>Correct Qwen</button>
       </div>
     </div>`;
   }).join("");
@@ -646,7 +646,7 @@ async function login(name) {
 }
 
 // ---------- Play ----------
-let LANG = stored("coach-lang") || "ca";
+let LANG = stored("coach-lang") || "en";
 function pickText(en, ca) { return LANG === "ca" && ca ? ca : en; }
 function showStatement() {
   const p = PLAY.problem;
@@ -673,10 +673,10 @@ function drawLadder() {
     const state = used > t.last ? "used" : used >= t.first ? "ready" : "locked";
     let name = info.name, note = info.note;
     if (t.kind === "guide") {
-      name = state === "used" ? "Todos los pasos" : `Paso ${used + 1} de ${g}`;
-      note = state === "used" ? "El último lo pones tú" : info.note;
+      name = state === "used" ? "All the steps" : `Step ${used + 1} of ${g}`;
+      note = state === "used" ? "The last one is yours" : info.note;
     }
-    if (state === "locked") note = t.first === g && g ? "Primero, los pasos" : `Primero la ayuda ${t.first}`;
+    if (state === "locked") note = t.first === g && g ? "First, the steps" : `First, help ${t.first}`;
     return `<button class="rung ${state}" ${state === "ready" ? "" : "disabled"}>
       ${state === "locked" ? icon("lock") : icon(info.icon)}<span>${name}</span><small>${note}</small></button>`;
   }).join("");
@@ -686,13 +686,13 @@ function drawLadder() {
 async function play(kind, mode) {
   KIND = kind || null; MODE = mode;
   const r = await api("/api/next", { uid: USER.uid, type: KIND, mode: MODE });
-  if (r.done) { toast(KIND ? `No quedan problemas de tu nivel en ${typeOf(KIND).name}. ¡Prueba otro tema!` : "No quedan problemas por ahora."); return; }
+  if (r.done) { toast(KIND ? `No problems left at your level in ${typeOf(KIND).name}. Try another topic!` : "No problems left for now."); return; }
   PLAY = r; picked = null; used = 0;
   const p = r.problem, t = typeOf(p.type), tier = META.tiers[p.tier - 1];
   $("#play").style.setProperty("--c", t.color);
   $("#who2").textContent = USER.name;
-  $("#play-title").textContent = MODE === "solve" ? "Resuélvelo tú" : "Corrige a Qwen";
-  $("#meta").innerHTML = `<span>${icon(p.type)}${t.name}</span><span>${tier.name}, ${META.points[p.tier]} puntos</span><span>Canguro ${p.year}</span>`;
+  $("#play-title").textContent = MODE === "solve" ? "Solve it yourself" : "Correct Qwen";
+  $("#meta").innerHTML = `<span>${icon(p.type)}${t.name}</span><span>${tier.name}, ${META.points[p.tier]} points</span><span>Kangaroo ${p.year}</span>`;
   showStatement();
   $("#correct-part").classList.toggle("hidden", MODE !== "correct");
   if (MODE === "correct") {
@@ -701,7 +701,7 @@ async function play(kind, mode) {
       <span class="t">${esc(label)}</span><span class="indicator" aria-hidden="true"></span>
     </button>`;
     const blocks = p.steps.map((text, i) => stepOption(i + 1, i + 1, text));
-    blocks.push(stepOption(0, "—", "No hay ningún error"));
+    blocks.push(stepOption(0, "—", "There is no mistake"));
     $("#steps").innerHTML = blocks.join("");
     document.querySelectorAll("#steps .step").forEach((b) => b.onclick = () => mark(Number(b.dataset.step)));
     $("#qwen-says").textContent = p.qwen_answer;
@@ -735,23 +735,23 @@ function finish(stats) {
   if (stats) {
     const before = STATS; STATS = stats;
     for (const t of META.types) for (const tier of stats.types[t.key].cleared)
-      if (!before.types[t.key].cleared.includes(tier)) toast(`¡Medalla de ${META.tiers[tier - 1].medal.toLowerCase()} en ${t.name}!`);
+      if (!before.types[t.key].cleared.includes(tier)) toast(`${META.tiers[tier - 1].medal} medal in ${t.name}!`);
   }
 }
 async function check() {
-  if (MODE === "correct" && picked === null) { toast("Primero toca el paso donde falla Qwen, o «No hay ningún error»."); return; }
+  if (MODE === "correct" && picked === null) { toast("First tap the step where Qwen goes wrong, or \u201cThere is no mistake\u201d."); return; }
   const text = $("#answer").value.trim();
   if (!text) { $("#answer").focus(); return; }
   try {
     const r = await api("/api/answer", { uid: USER.uid, play_id: PLAY.play_id, step: picked, answer: text, fix: $("#fix").value });
     if (r.right) {
-      const how = `${r.tries === 1 ? "a la primera" : `en ${r.tries} intentos`}, ${r.hints === 0 ? "sin pistas" : `con ${r.hints} ayuda${r.hints > 1 ? "s" : ""}`}.`;
-      feedback("right", `<b>¡Correcto! Es ${esc(r.value)}.</b> +${r.points} puntos, ${how}` +
-        (r.qwen_correct && MODE === "correct" ? " Esta vez Qwen tenía razón, y lo has visto." : ""));
+      const how = `${r.tries === 1 ? "on the first try" : `in ${r.tries} tries`}, ${r.hints === 0 ? "with no hints" : `with ${r.hints} hint${r.hints > 1 ? "s" : ""}`}.`;
+      feedback("right", `<b>Right! It's ${esc(r.value)}.</b> +${r.points} points, ${how}` +
+        (r.qwen_correct && MODE === "correct" ? " This time Qwen was right, and you spotted it." : ""));
       finish(r.stats);
     } else {
-      const tip = MODE === "correct" ? "Revisa el paso que has marcado" : "Relee el enunciado o desbloquea una ayuda";
-      feedback("wrong", `${esc(r.message || `${r.value} no es la respuesta.`)} ${tip} y vuelve a probar.`);
+      const tip = MODE === "correct" ? "Check the step you marked" : "Read the problem again or reveal a step";
+      feedback("wrong", `${esc(r.message || `${r.value} is not the answer.`)} ${tip}, then try again.`);
     }
   } catch (e) { feedback("wrong", esc(e.message)); }
 }
@@ -767,39 +767,39 @@ async function help() {
       let g = document.querySelector("#guide-card");
       if (!g) {
         g = document.createElement("div"); g.className = "help"; g.id = "guide-card";
-        g.innerHTML = `<h3>${icon("ladder")}Paso a paso</h3><div class="mini"></div><p class="guide-note"></p>`;
+        g.innerHTML = `<h3>${icon("ladder")}Step by step</h3><div class="mini"></div><p class="guide-note"></p>`;
         $("#helps").append(g);
       }
       g.querySelector(".mini").insertAdjacentHTML("beforeend", `<div><b>${h.step}</b><span>${esc(h.text)}</span></div>`);
-      g.querySelector(".guide-note").textContent = h.step < h.of ? "¿Puedes seguir tú desde aquí?" : "Ya tienes el camino: el último paso lo das tú.";
+      g.querySelector(".guide-note").textContent = h.step < h.of ? "Can you carry on from here?" : "You have the way now: the last step is yours.";
       g.scrollIntoView({ behavior: "smooth", block: "nearest" });
       return;
     }
     if (h.kind === "qwen_hint") body = `<p>${esc(h.text)}</p>`;
     else if (h.kind === "sibling") body = `<p class="sib-text" data-en="${esc(h.text)}" data-ca="${esc(h.text_ca || "")}">${esc(pickText(h.text, h.text_ca))}</p>
-        <div class="row"><input class="sib-in" placeholder="Su respuesta" aria-label="Respuesta del problema hermano">
-          <button class="btn-go sib-check">Comprobar</button><button class="sib-show">Ver su solución</button></div><p class="sib-out" role="status"></p>`;
-    else if (h.kind === "attempt") body = `<p>Qwen llega a <b>${esc(h.qwen_answer)}</b>, y no es correcto. ¿Dónde falla?</p>
+        <div class="row"><input class="sib-in" placeholder="Its answer" aria-label="Answer to the sibling problem">
+          <button class="btn-go sib-check">Check</button><button class="sib-show">Show its answer</button></div><p class="sib-out" role="status"></p>`;
+    else if (h.kind === "attempt") body = `<p>Qwen gets <b>${esc(h.qwen_answer)}</b>, which is wrong. Where does it fail?</p>
         <div class="mini">${h.steps.map((s, i) => `<div><b>${i + 1}</b><span>${esc(s)}</span></div>`).join("")}</div>`;
     else body = `<div class="opts">${h.options.map((o) => `<span>${esc(o)}</span>`).join("")}</div>`;
-    card.innerHTML = `<h3>${icon(info.icon)}Ayuda ${h.n}: ${info.name.toLowerCase()}</h3>${body}`;
+    card.innerHTML = `<h3>${icon(info.icon)}Help ${h.n}: ${info.name.toLowerCase()}</h3>${body}`;
     $("#helps").append(card);
     if (h.kind === "sibling") {
       const out = card.querySelector(".sib-out");
       card.querySelector(".sib-check").onclick = async () => {
         try {
           const r = await api("/api/sibling", { uid: USER.uid, play_id: PLAY.play_id, answer: card.querySelector(".sib-in").value });
-          out.textContent = r.right ? "¡Bien! Ahora vuelve a tu problema: ¿te sirve la misma idea?" : `${r.value} no es. Prueba otra vez.`;
+          out.textContent = r.right ? "Well done! Now go back to your problem: does the same idea work?" : `${r.value} is not it. Try again.`;
         } catch (e) { out.textContent = e.message; }
       };
-      card.querySelector(".sib-show").onclick = () => { out.innerHTML = `Su respuesta es <b>${esc(h.answer)}</b>.`; };
+      card.querySelector(".sib-show").onclick = () => { out.innerHTML = `Its answer is <b>${esc(h.answer)}</b>.`; };
     }
     card.scrollIntoView({ behavior: "smooth", block: "nearest" });
   } catch (e) { toast(e.message); }
 }
 async function giveup() {
   const r = await api("/api/giveup", { uid: USER.uid, play_id: PLAY.play_id });
-  feedback("wrong", `La respuesta era <b>${esc(r.value)}</b>.` + (r.qwen_correct && MODE === "correct" ? " Esta vez Qwen tenía razón." : " ¡A por el siguiente!"));
+  feedback("wrong", `The answer was <b>${esc(r.value)}</b>.` + (r.qwen_correct && MODE === "correct" ? " This time Qwen was right." : " On to the next one!"));
   finish(r.stats);
 }
 

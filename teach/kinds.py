@@ -7,7 +7,7 @@ type whose descriptions are closest: no hand labelling of problems.
 
 TYPES = [
     {
-        "key": "calculo", "name": "Cálculo", "icon": "🔢", "color": "#ee6a12",
+        "key": "calculo", "name": "Arithmetic", "icon": "🔢", "color": "#ee6a12",
         "describe": [
             "Compute a result with addition, subtraction, multiplication and division.",
             "A word problem about money, prices, time, distances or speeds.",
@@ -18,7 +18,7 @@ TYPES = [
                     "operación las relaciona. ¿Qwen ha usado todos los datos, y cada uno una sola vez?",
     },
     {
-        "key": "algebra", "name": "Álgebra", "icon": "⚖️", "color": "#d9336b",
+        "key": "algebra", "name": "Algebra", "icon": "⚖️", "color": "#d9336b",
         "describe": [
             "Find an unknown number from an equation or a balance.",
             "Ages of people now and in some years.",
@@ -29,7 +29,7 @@ TYPES = [
                     "Comprueba si la ecuación de Qwen dice lo mismo que el enunciado.",
     },
     {
-        "key": "geometria", "name": "Geometría", "icon": "📐", "color": "#1f6feb",
+        "key": "geometria", "name": "Geometry", "icon": "📐", "color": "#1f6feb",
         "describe": [
             "Area and perimeter of squares, rectangles, triangles and circles.",
             "Angles in a figure, parallel lines and polygons.",
@@ -40,7 +40,7 @@ TYPES = [
                     "Qwen es la de esa figura (perímetro no es área, y no todo triángulo es rectángulo).",
     },
     {
-        "key": "conteo", "name": "Conteo", "icon": "🎲", "color": "#16a05c",
+        "key": "conteo", "name": "Counting", "icon": "🎲", "color": "#16a05c",
         "describe": [
             "In how many different ways can objects be arranged or chosen?",
             "Count the number of possible combinations, pairs or orders.",
@@ -51,7 +51,7 @@ TYPES = [
                     "casos, o ha contado algún caso dos veces?",
     },
     {
-        "key": "logica", "name": "Lógica", "icon": "🧩", "color": "#7c4ddb",
+        "key": "logica", "name": "Logic", "icon": "🧩", "color": "#7c4ddb",
         "describe": [
             "Some people always tell the truth and others always lie; who is who?",
             "Deduce who did what from several clues.",
@@ -62,7 +62,7 @@ TYPES = [
                     "¿Qwen ha supuesto algo que el enunciado no dice?",
     },
     {
-        "key": "numeros", "name": "Números", "icon": "✨", "color": "#f2b300",
+        "key": "numeros", "name": "Numbers", "icon": "✨", "color": "#f2b300",
         "describe": [
             "Digits of a number, the sum of digits and place value.",
             "Divisibility, multiples, remainders and prime numbers.",
@@ -78,9 +78,9 @@ TYPE_KEYS = [t["key"] for t in TYPES]
 
 # M3Kang levels 0 to 7 (level 0 is grade 5) grouped into three tiers
 TIERS = [
-    {"tier": 1, "name": "Fácil", "levels": (0, 1, 2), "medal": "Bronce"},
-    {"tier": 2, "name": "Medio", "levels": (3, 4), "medal": "Plata"},
-    {"tier": 3, "name": "Difícil", "levels": (5, 6, 7), "medal": "Oro"},
+    {"tier": 1, "name": "Easy", "levels": (0, 1, 2), "medal": "Bronze"},
+    {"tier": 2, "name": "Medium", "levels": (3, 4), "medal": "Silver"},
+    {"tier": 3, "name": "Hard", "levels": (5, 6, 7), "medal": "Gold"},
 ]
 
 
