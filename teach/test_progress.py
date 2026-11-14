@@ -6,7 +6,7 @@ class ProgressTests(unittest.TestCase):
     def setUp(self):
         self.db = game.connect(':memory:')
         self.uid = game.user_id(self.db, 'Alumno')
-        self.db.execute("INSERT INTO problems (id,type,tier,correct_value,steps,qwen_correct,hint) VALUES ('p','calculo',2,'6','[]',0,'Pista')")
+        self.db.execute("INSERT INTO problems (id,type,tier,correct_value,steps,qwen_correct,guide) VALUES ('p','calculo',2,'6','[]',0,?)", (json.dumps(["Pista"]),))
         self.db.commit()
         game._TYPE_IDS.clear()
 

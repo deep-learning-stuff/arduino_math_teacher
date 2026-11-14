@@ -72,6 +72,33 @@ PROBLEMS = [
 ]
 
 
+# Steps of a correct solution for each made-up problem, without the step that
+# gives the answer: what generate_worked.py produces for the real ones.
+GUIDES = {
+    0: ["Each notebook costs 4 euros, so 3 notebooks cost 3 × 4 = 12 euros.",
+        "She pays with a 20 euro note: the change is what is left of 20 after paying 12."],
+    1: ["9:40 plus 1 hour is 10:40.", "10:40 plus 20 minutes is 11:00. How many of the 35 minutes are still left?"],
+    2: ["Let s be the sister's age now, so Tom is 3s.",
+        "In 4 years both are 4 years older: (3s + 4) + (s + 4) = 24, so 4s + 8 = 24."],
+    3: ["Call the smaller number x, so the larger one is x + 6.", "Then x + (x + 6) = 30, so 2x = 24."],
+    4: ["A square has 4 equal sides, so each side is 36 / 4 = 9 cm."],
+    5: ["The diagonal and two sides form a right triangle.",
+        "By Pythagoras, the diagonal squared is 12 × 12 + 5 × 5 = 169."],
+    6: ["AB and BA are different codes, so the order matters.",
+        "There are 3 choices for the first letter, and then 2 for the second."],
+    7: ["Each friend shakes 5 hands, which gives 6 × 5 = 30.",
+        "But every handshake has two people, so it was counted twice."],
+    8: ["The box labelled 'mixed' can't be mixed: it has only apples or only pears.",
+        "Take one fruit from that box and you know what it really holds. What do the other two labels tell you then?"],
+    9: ["With 2 colours, the worst luck is one red sock and one blue sock.", "The next sock must match one of them."],
+    10: ["Being divisible by 4 and by 6 means being a multiple of 12, not of 24.",
+         "The multiples of 12 are 12, 24, 36, 48, ..."],
+    11: ["Write the number as 10a + b; with the digits swapped it is 10b + a.",
+         "The difference is 9b - 9a = 27, so b - a = 3, and also a + b = 9."],
+}
+TWINS = [(6, 7), (2, 3), (8, 9)]  # same topic, same idea
+
+
 def main():
     path = os.path.join("data", "demo.db")
     os.makedirs("data", exist_ok=True)
@@ -88,6 +115,11 @@ def main():
                        options[label], json.dumps(steps), qwen, 0, "", json.dumps({
                            "id": f"demo-sib-{i}", "level": sibling[1], "score": 0.8, "text": sibling[2],
                            "text_ca": sibling[3], "answer": dict(zip("ABCDE", sibling[4]))[sibling[5]]}), hint, ca))
+    for i, steps in GUIDES.items():
+        db.execute("UPDATE problems SET guide = ? WHERE id = ?", (json.dumps(steps), f"demo-{i}"))
+    for a, b in TWINS:
+        db.execute("UPDATE problems SET twins = ? WHERE id = ?", (json.dumps([f"demo-{b}"]), f"demo-{a}"))
+        db.execute("UPDATE problems SET twins = ? WHERE id = ?", (json.dumps([f"demo-{a}"]), f"demo-{b}"))
     db.commit()
 
     # A demo student with some history, so the dashboard has something to draw
