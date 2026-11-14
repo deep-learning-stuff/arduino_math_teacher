@@ -42,7 +42,8 @@ README running:
 
 ```bash
 python3 teach/generate_solutions.py          # Qwen's attempts -> data/teach.db (hours; resumable)
-python3 teach/prepare_app.py                 # types, tiers, similar problems -> data/app.db
+python3 teach/generate_worked.py             # verified worked solutions for the hints (hours; resumable)
+python3 teach/prepare_app.py --require-guide # types, tiers, hints, similar problems -> data/app.db
 python3 teach/server.py                      # http://127.0.0.1:8000 on the board
 ```
 
@@ -62,7 +63,11 @@ laptop and copy `data/cat/` to the board before `prepare_app.py`.
 | `game.py` | The rules: exact calculator for answers, help ladder, points, medals, history. SQLite schema |
 | `kinds.py` | The six topics (name, colour, descriptions for the embeddings) and the three tiers |
 | `generate_solutions.py` | Asks Qwen to solve each problem in numbered steps; stores attempts in `data/teach.db` |
-| `generate_hints.py` | Experiments asking Qwen for hints (not used yet: see "What didn't work") |
+| `generate_worked.py` | **The hints.** Qwen2.5-Math-1.5B (port 8084) solves each problem without knowing the answer; only solutions whose `\boxed{}` answer is right are kept. Their steps become the "Siguiente paso" help, never the step that states the answer |
+| `generate_hints.py` | Experiments asking Qwen 0.8B for one-line hints (not used: they didn't help) |
+| `generate_guided.py` | Experiment: the math model told the answer, with a fixed format (not used: it wrote empty plans) |
+| `judge_errors.py` | Experiment: the math model points at the step where Qwen 0.8B goes wrong |
+| `applab/canguro-led/` | App Lab app that shows the game on the LED matrix (paused for now) |
 | `prepare_app.py` | Builds `data/app.db`: keeps usable attempts, gives each problem a topic and a similar easier problem with the embeddings |
 | `make_demo_db.py` | `data/demo.db` with made-up problems, for front-end work |
 

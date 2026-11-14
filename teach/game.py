@@ -9,7 +9,8 @@ Two modes, one hexagon:
 Help never gives the answer away. It's a ladder, one rung per request, and
 every rung is about this problem:
   qwen_hint  a question written by Qwen ahead of time to help understand it
-  sibling    the most similar solved problem of a lower level (embeddings)
+  sibling    the most similar solved problem of a lower level and the same topic
+             (embeddings), only when it's similar enough
   attempt    Qwen's wrong attempt, to debug (solve mode only)
   options    the five options of the Kangaroo
 Each rung used lowers the points. Which rungs a student used, and whether they
@@ -58,7 +59,7 @@ CREATE TABLE IF NOT EXISTS plays (
 );
 """
 # Columns added after the first version: added in place, so old databases keep working
-EXTRA_COLUMNS = {"problems": {"hint": "TEXT", "text_ca": "TEXT"},
+EXTRA_COLUMNS = {"problems": {"hint": "TEXT", "text_ca": "TEXT", "guide": "TEXT"},
                  "plays": {"game": "TEXT", "help_kinds": "TEXT DEFAULT ''", "points": "REAL DEFAULT 0"}}
 
 
@@ -207,10 +208,15 @@ def problem_public(db, pid, mode):
 
 
 def ladder(db, pid, mode):
-    """The rungs of help this problem has, in order."""
-    hint, similar = db.execute("SELECT hint, similar FROM problems WHERE id = ?", (pid,)).fetchone()
+    """The rungs of help this problem has, in order.
+
+    A verified worked solution comes first, one "guide" rung per step (never the
+    last step, which gives the answer away); then the other kinds of help.
+    """
+    hint, similar, guide = db.execute("SELECT hint, similar, guide FROM problems WHERE id = ?", (pid,)).fetchone()
     have = {"qwen_hint": bool(hint), "sibling": bool(similar), "attempt": True, "options": True}
-    return [k for k in LADDERS[mode] if have[k]]
+    steps = json.loads(guide) if guide else []
+    return ["guide"] * len(steps) + [k for k in LADDERS[mode] if have[k]]
 
 
 def start_play(db, uid, pid, mode):
@@ -242,10 +248,13 @@ def help_rung(db, play_id, uid):
     db.execute("UPDATE plays SET hints = ?, help_kinds = ? WHERE id = ?",
                (hints + 1, ",".join(filter(None, [used, kind])), play_id))
     db.commit()
-    hint, similar, options, steps, qwen_answer = db.execute(
-        "SELECT hint, similar, options, steps, qwen_answer FROM problems WHERE id = ?", (pid,)).fetchone()
+    hint, similar, options, steps, qwen_answer, guide = db.execute(
+        "SELECT hint, similar, options, steps, qwen_answer, guide FROM problems WHERE id = ?", (pid,)).fetchone()
     out = {"n": hints + 1, "total": len(rungs), "kind": kind}
-    if kind == "qwen_hint":
+    if kind == "guide":
+        guide = json.loads(guide)
+        out.update(text=guide[hints], step=hints + 1, of=len(guide))
+    elif kind == "qwen_hint":
         out["text"] = hint
     elif kind == "sibling":
         out.update(json.loads(similar))

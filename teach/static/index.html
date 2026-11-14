@@ -374,6 +374,7 @@
 const $ = (s) => document.querySelector(s);
 let META = null, USER = null, STATS = null, HISTORY = null, PLAY = null, KIND = null, MODE = "solve", picked = null;
 const HELP_INFO = {
+  guide: { icon: "ladder", name: "Siguiente paso", note: "Un paso de una solución comprobada" },
   qwen_hint: { icon: "bulb", name: "Una pregunta", note: "Te hace fijarte en algo clave" },
   sibling: { icon: "ladder", name: "Problema hermano", note: "Uno parecido, más fácil" },
   attempt: { icon: "bot", name: "Intento de Qwen", note: "Busca dónde falla" },
@@ -557,12 +558,23 @@ $("#lang").onclick = () => {
 let used = 0;
 function drawLadder() {
   const kinds = PLAY.help_kinds || [];
+  // All the steps of the worked solution share one block, with a counter
+  const g = kinds.filter((k) => k === "guide").length;
+  const tiles = (g ? [{ kind: "guide", first: 0, last: g - 1 }] : [])
+    .concat(kinds.map((k, i) => ({ kind: k, first: i, last: i })).filter((t) => t.kind !== "guide"));
   $("#help-zone").classList.toggle("hidden", !kinds.length);
-  $("#ladder").style.setProperty("--n", kinds.length);
-  $("#ladder").innerHTML = kinds.map((k, i) => {
-    const info = HELP_INFO[k], state = i < used ? "used" : i === used ? "ready" : "locked";
-    return `<button class="rung ${state}" data-i="${i}" ${state === "ready" ? "" : "disabled"}>
-      ${state === "locked" ? icon("lock") : icon(info.icon)}<span>${info.name}</span><small>${state === "locked" ? `Primero la ayuda ${i}` : info.note}</small></button>`;
+  $("#ladder").style.setProperty("--n", tiles.length);
+  $("#ladder").innerHTML = tiles.map((t) => {
+    const info = HELP_INFO[t.kind];
+    const state = used > t.last ? "used" : used >= t.first ? "ready" : "locked";
+    let name = info.name, note = info.note;
+    if (t.kind === "guide") {
+      name = state === "used" ? "Todos los pasos" : `Paso ${used + 1} de ${g}`;
+      note = state === "used" ? "El último lo pones tú" : info.note;
+    }
+    if (state === "locked") note = t.first === g && g ? "Primero, los pasos" : `Primero la ayuda ${t.first}`;
+    return `<button class="rung ${state}" ${state === "ready" ? "" : "disabled"}>
+      ${state === "locked" ? icon("lock") : icon(info.icon)}<span>${name}</span><small>${note}</small></button>`;
   }).join("");
   $("#ladder").querySelector(".rung.ready")?.addEventListener("click", help);
 }
@@ -638,6 +650,19 @@ async function help() {
     const info = HELP_INFO[h.kind], card = document.createElement("div");
     card.className = "help";
     let body = "";
+    if (h.kind === "guide") {
+      // Steps pile up in one card instead of one card each
+      let g = document.querySelector("#guide-card");
+      if (!g) {
+        g = document.createElement("div"); g.className = "help"; g.id = "guide-card";
+        g.innerHTML = `<h3>${icon("ladder")}Paso a paso</h3><div class="mini"></div><p class="guide-note"></p>`;
+        $("#helps").append(g);
+      }
+      g.querySelector(".mini").insertAdjacentHTML("beforeend", `<div><b>${h.step}</b><span>${esc(h.text)}</span></div>`);
+      g.querySelector(".guide-note").textContent = h.step < h.of ? "¿Puedes seguir tú desde aquí?" : "Ya tienes el camino: el último paso lo das tú.";
+      g.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      return;
+    }
     if (h.kind === "qwen_hint") body = `<p>${esc(h.text)}</p>`;
     else if (h.kind === "sibling") body = `<p class="sib-text" data-en="${esc(h.text)}" data-ca="${esc(h.text_ca || "")}">${esc(pickText(h.text, h.text_ca))}</p>
         <div class="row"><input class="sib-in" placeholder="Su respuesta" aria-label="Respuesta del problema hermano">
