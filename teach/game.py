@@ -230,7 +230,7 @@ def mark_failed(db, uid, pid):
     db.commit()
 
 
-def pick(db, uid, kind=None, rng=random):
+def pick(db, uid, kind=None, rng=random, mode="solve"):
     """Next problem for a type (or any type), at the student's current tier.
 
     Never above the current tier: if it has nothing left, an easier tier, and
@@ -247,7 +247,8 @@ def pick(db, uid, kind=None, rng=random):
             SELECT p.id, p.tier, COUNT(pl.id), MAX(pl.solved = 1), COALESCE(q.priority, 0) FROM problems p
             LEFT JOIN plays pl ON pl.problem_id = p.id AND pl.user_id = ?
             LEFT JOIN queue q ON q.problem_id = p.id AND q.user_id = ?
-            WHERE p.type = ? GROUP BY p.id""", (uid, uid, k)).fetchall()
+            WHERE p.type = ? AND (? = 'solve' OR p.steps <> '[]')   -- correct mode needs Qwen's attempt
+            GROUP BY p.id""", (uid, uid, k, mode)).fetchall()
         # Unsolved problems of the current tier or easier ones; a waiting twin
         # (priority > 0) is allowed from any tier: it's almost the same problem.
         pool = [r for r in rows if not r[3] and (r[1] <= target or r[4] > 0)]

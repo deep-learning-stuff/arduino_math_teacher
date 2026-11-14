@@ -23,6 +23,7 @@ from array import array
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from copilot.embed import embed  # noqa: E402
 from teach.game import connect, evaluate  # noqa: E402
+from teach.generate_solutions import candidates, clean_text  # noqa: E402
 from teach.kinds import TYPES, tier_of  # noqa: E402
 
 DIGIT = re.compile(r"\d")
@@ -120,6 +121,7 @@ def main():
                          "the page shows these texts, matched by id; everything else works in English")
     ap.add_argument("--hints-table", default="", choices=["", "hints", "hints_answer"],
                     help="which Qwen hints to show (none until a pilot has been judged by hand)")
+    ap.add_argument("--inputs", default="data/train.jsonl,data/val.jsonl")
     ap.add_argument("--twin-min", type=float, default=0.85,
                     help="cosine similarity for two problems of the same topic to count as twins")
     ap.add_argument("--require-guide", action="store_true",
@@ -135,6 +137,21 @@ def main():
     hints = {}
     if args.hints_table:  # hints from generate_hints.py, only the ones that passed the checks in code
         hints = dict(src.execute(f"SELECT id, hint FROM {args.hints_table} WHERE ok = 1"))
+    # Problems the math model solved but Qwen 0.8B never tried: they can be played
+    # in "Resuélvelo tú" (they have hints) but not in "Corrige a Qwen" (no attempt)
+    tried = {a[0] for a in attempts}
+    try:
+        solved_ids = [r[0] for r in src.execute("SELECT id FROM worked WHERE ok = 1")]
+    except sqlite3.OperationalError:
+        solved_ids = []
+    by_id = {p["id"]: p for p in candidates(args.inputs.split(","), "eng")}
+    solve_only = set()
+    for pid in solved_ids:
+        if pid not in tried and pid in by_id:
+            p = by_id[pid]
+            attempts.append((pid, p["level"], p["year"], clean_text(p["text"]), json.dumps(p["options"]),
+                             p["label"], p["options"][p["label"]], "[]", "", 0, ""))
+            solve_only.add(pid)
     correct = {a[0]: a[6] for a in attempts}
     guides = {}
     try:  # worked solutions from generate_worked.py, only the ones the model really solved
@@ -145,10 +162,11 @@ def main():
     except sqlite3.OperationalError:
         pass
     src.close()
-    keep = [a for a in attempts if usable(json.loads(a[7]))]
+    keep = [a for a in attempts if a[0] in solve_only or usable(json.loads(a[7]))]
     if args.require_guide:
         keep = [a for a in keep if a[0] in guides]
-    print(f"{len(attempts)} attempts, {len(keep)} kept, {len(hints)} Qwen hints, {len(guides)} verified worked solutions")
+    print(f"{len(tried)} Qwen attempts, {len(solve_only)} solve-only problems, {len(keep)} kept, "
+          f"{len(hints)} Qwen hints, {len(guides)} verified worked solutions")
 
     # Each type is described by a few sentences; a problem's score for a type is
     # its best similarity to one of them.

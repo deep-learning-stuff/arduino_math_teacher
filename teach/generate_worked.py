@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from copilot.client import post  # noqa: E402
 from copilot.config import CONFIG  # noqa: E402
 from teach.game import evaluate  # noqa: E402
+from teach.generate_solutions import candidates, clean_text  # noqa: E402
 
 SYSTEM = "Please reason step by step, and put your final answer within \\boxed{}."
 
@@ -106,7 +107,10 @@ def main():
     ap.add_argument("--db", default="data/teach.db")
     ap.add_argument("--port", type=int, default=8084)
     ap.add_argument("--limit", type=int, default=0)
-    ap.add_argument("--max-tokens", type=int, default=700)
+    # Solved problems needed 250-500 tokens in the pilot; the longest runs were failures
+    ap.add_argument("--max-tokens", type=int, default=550)
+    ap.add_argument("--order", default="", help="JSON list of ids from plan_order.py (default: Qwen 0.8B attempts)")
+    ap.add_argument("--inputs", default="data/train.jsonl,data/val.jsonl")
     ap.add_argument("--timeout", type=float, default=900)
     ap.add_argument("--reparse", action="store_true", help="recompute steps from the stored text, no model calls")
     args = ap.parse_args()
@@ -120,8 +124,17 @@ def main():
         db.commit()
         print("Steps recomputed from the stored solutions")
         return
-    rows = db.execute("SELECT a.id, a.text, a.correct_value FROM attempts a LEFT JOIN worked w ON w.id = a.id "
-                      "WHERE w.id IS NULL AND a.status = 'ok' ORDER BY a.rowid").fetchall()
+    done = {r[0] for r in db.execute("SELECT id FROM worked")}
+    if args.order:
+        # The order from plan_order.py, over every candidate, with or without a Qwen 0.8B attempt
+        by_id = {p["id"]: p for p in candidates(args.inputs.split(","), "eng")}
+        with open(args.order) as f:
+            order = json.load(f)
+        rows = [(pid, clean_text(by_id[pid]["text"]), by_id[pid]["options"][by_id[pid]["label"]])
+                for pid in order if pid in by_id and pid not in done]
+    else:
+        rows = db.execute("SELECT a.id, a.text, a.correct_value FROM attempts a LEFT JOIN worked w ON w.id = a.id "
+                          "WHERE w.id IS NULL AND a.status = 'ok' ORDER BY a.rowid").fetchall()
     if args.limit:
         rows = rows[:args.limit]
     print(f"{len(rows)} problems to solve", flush=True)

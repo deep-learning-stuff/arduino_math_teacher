@@ -61,7 +61,7 @@ class App:
             return game.help_report(db)
         if path == "/api/next":
             kind, mode = body.get("type"), body.get("mode", "solve")
-            pid = game.pick(db, uid, kind)
+            pid = game.pick(db, uid, kind, mode=mode)
             if not pid:
                 return {"done": True}
             play_id = game.start_play(db, uid, pid, mode)

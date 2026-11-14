@@ -120,10 +120,17 @@ def main():
     p.add_argument("--language", default="eng")
     p.add_argument("--limit", type=int, default=0, help="0 means every candidate")
     p.add_argument("--timeout", type=float, default=180)
+    p.add_argument("--only-worked", action="store_true",
+                   help="only problems the math model solved (generate_worked.py), so they can be played "
+                        "in 'Corrige a Qwen' too")
     args = p.parse_args()
 
     problems = candidates(args.inputs.split(","), args.language)
     random.Random(42).shuffle(problems)  # the pilot is a fixed, mixed sample
+    if args.only_worked:
+        with sqlite3.connect(args.db) as db:
+            solved = {r[0] for r in db.execute("SELECT id FROM worked WHERE ok = 1")}
+        problems = [x for x in problems if x["id"] in solved]
     if args.limit:
         problems = problems[:args.limit]
 
