@@ -20,6 +20,13 @@ def problem(options=NUM, text=TEXT, label="C", pid="p1", level=3):
     return {"id": pid, "language": "eng", "level": level, "text": text, "options": dict(options), "label": label}
 
 
+# A made-up training set with the tendencies of M3Kang (the real data is not in
+# the repository): five numbers -> the middle one is right most often; options
+# in a picture -> D is the most common letter.
+TRAIN = ([problem(NUM, label="C")] * 6 + [problem(NUM, label="B")] * 3 + [problem(NUM, label="A")]
+         + [problem({}, label="D")] * 5 + [problem({}, label=x) for x in "ABCE"])
+
+
 class Fakes:
     """Replace the letter model and the code model for one test."""
 
@@ -50,16 +57,19 @@ class Fakes:
         self.saved_checker = pipeline.USE_CHECKER
         pipeline.USE_CHECKER = True
         pipeline._MEMORY = memory.Memory([])
+        self.saved_prior = pipeline._PRIOR
+        pipeline._PRIOR = priors.Prior(TRAIN)
         return self
 
     def __exit__(self, *exc):
         pipeline.answer_letter, cascade.stream_until, pipeline.STRATEGY, pipeline._MEMORY = self.saved
         pipeline.USE_CHECKER = self.saved_checker
+        pipeline._PRIOR = self.saved_prior
 
 
 class PriorTest(unittest.TestCase):
     def setUp(self):
-        self.prior = priors.load()
+        self.prior = priors.Prior(TRAIN)
 
     def test_numbers_favour_the_middle(self):
         dist = self.prior(problem())
