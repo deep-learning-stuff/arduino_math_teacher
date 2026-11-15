@@ -24,6 +24,13 @@ done
 check "language model answers on $LLM_PORT" "wait_for_health $LLM_PORT 60"
 check "code model answers on $CODE_PORT" "wait_for_health $CODE_PORT 60"
 check "MateQwen web page on $APP_PORT" "curl -sf -o /dev/null http://127.0.0.1:$APP_PORT/"
+if [ "$APP_HOST" = 0.0.0.0 ]; then
+  # Other devices need the app on every interface, not only on 127.0.0.1
+  IP="$(ip route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<NF;i++) if($i=="src") print $(i+1)}')"
+  check "MateQwen listens on the network (APP_HOST=0.0.0.0)" \
+    "ss -ltn | awk '{print \$4}' | grep -qx '0.0.0.0:$APP_PORT'"
+  check "MateQwen opens at http://$IP:$APP_PORT" "curl -sf -o /dev/null http://$IP:$APP_PORT/"
+fi
 check "predict.py strategy is cascade" "[ \"$STRATEGY\" = cascade ]"
 free -m | awk 'NR==2 {printf "  RAM: %d MB used, %d MB available\n", $3, $7}'
 
