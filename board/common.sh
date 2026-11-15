@@ -10,6 +10,7 @@ MODELS_DIR="${MODELS_DIR/#\~/$HOME}"
 LLAMA_SERVER="$LLAMA_CPP_DIR/build/bin/llama-server"
 LLM_PATH="$MODELS_DIR/$LLM_FILE"
 EMBED_PATH="$MODELS_DIR/$EMBED_FILE"
+CODE_PATH="$MODELS_DIR/$CODE_FILE"
 
 if [ -t 1 ]; then
   GREEN=$'\e[32m'; YELLOW=$'\e[33m'; RED=$'\e[31m'; BOLD=$'\e[1m'; RESET=$'\e[0m'

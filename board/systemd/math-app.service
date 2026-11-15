@@ -1,0 +1,14 @@
+[Unit]
+Description=Math on the Edge: MateQwen teaching web app (port @APP_PORT@)
+After=local-fs.target math-llm.service math-embed.service
+
+[Service]
+Type=simple
+User=@USER@
+WorkingDirectory=@REPO_DIR@
+ExecStart=/usr/bin/python3 @REPO_DIR@/teach/server.py --host @APP_HOST@ --port @APP_PORT@
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+[Unit]
+Description=Math on the Edge: code model for predict.py (llama.cpp, port @CODE_PORT@)
+After=local-fs.target
+
+[Service]
+Type=simple
+User=@USER@
+ExecStart=@LLAMA_SERVER@ -m @CODE_PATH@ --host 127.0.0.1 --port @CODE_PORT@ --threads @CODE_THREADS@ --ctx-size @CODE_CTX@ --parallel 1 --cache-ram 0 --ctx-checkpoints 2 --jinja --alias qwen2.5-coder-1.5b
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
