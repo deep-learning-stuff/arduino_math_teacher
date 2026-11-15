@@ -279,9 +279,9 @@ To work on the app without a board: `python3 teach/make_demo_db.py && python3 te
 
 ## Team, credits and license
 
-**Team:** TODO (team): names.
+**Team:** Izan Pérez Sánchez, Edgar Sáez López.
 
 - Models: [Qwen3.5 0.8B](https://huggingface.co/bartowski/Qwen_Qwen3.5-0.8B-GGUF), [Qwen2.5-Coder 1.5B Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF) (Apache-2.0), Qwen2.5-Math 1.5B Instruct (offline hint generation), [bge-small-en-v1.5](https://huggingface.co/CompendiumLabs/bge-small-en-v1.5-gguf), served by [llama.cpp](https://github.com/ggml-org/llama.cpp).
 - Data: [M3Kang](https://huggingface.co/datasets/qualcomm/M3Kang), Torres-Camps et al., 2026, [arXiv:2601.16218](https://arxiv.org/abs/2601.16218). For research use only, so it is not in this repository.
 - Starting point: the Datathon FME 2026 Qualcomm repository and its guide ([`docs/SETUP.md`](docs/SETUP.md)).
-- License of our code: TODO (team): add a `LICENSE` file (for example MIT).
+- License of our code: [MIT](LICENSE). The models and data above keep their own licenses.
