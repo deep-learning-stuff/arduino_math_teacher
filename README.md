@@ -83,6 +83,13 @@ A single web page ([`teach/static/index.html`](teach/static/index.html)), with n
 - **Privacy:** the student logs in with a name only. Everything stays in `data/app.db` on the board.
 - **Measured inside the app:** `POST /api/report` gives, for each kind of help, how often students solved the problem right after using it.
 
+**What we have measured so far, honestly:**
+- The app holds 131 problems: 38 with a verified worked solution for the step-by-step help, and 40 with a similar easier problem. All of them have the Catalan text.
+- Qwen 0.8B got only 8 of its 131 attempts right. That is bad for answering, but it gives plenty of *Correct Qwen* exercises.
+- The only users so far are the team, testing: 33 plays. In those, the problem was always solved after a help rung (2/2 similar problem, 2/2 solution step, 1/1 Qwen attempt).
+- That is far too little to claim the help teaches. A study with real students is the next step.
+- We also found a weak spot by playing: the first step of a worked solution often only restates the question. The useful plan starts at step 2.
+
 Details, the API and the design rules are in [`teach/README.md`](teach/README.md).
 
 ## Reason: predict.py
@@ -127,6 +134,13 @@ All runs on the UNO Q 4 GB, with the services from `config.env`, 60 s limit per 
 \* The cascade run on the balanced sample was stopped after 39 of 64 problems. On those 39, combo kept every problem cascade got right and won one more.
 
 | `combo` (partial run, stopped) | first 23 of the 100 practice problems | 9/23 (39%) | 41.5 / 54.0 s |
+
+**Pre-exam check** (`./board/06_exam_check.sh`, 2026-11-15, final commit, `STRATEGY=combo`): all checks passed.
+- Four services running and enabled at boot, with 2.5 GB of RAM free.
+- 6 practice problems: 4 right, 3 of them answered by a program, slowest 52.1 s.
+- Awkward inputs (no options, empty options, word options, OCR noise, four options): always a letter.
+- Letters still come back with the code model down.
+- The MateQwen end-to-end API test passes.
 
 **Honest reading.** The practice set (42/100) is easier than a sample balanced across all eight levels (33–34%). Both strategies are well above the baseline and the floor. On the same problems, combo beats cascade by one problem, which is within the noise. Its real gain is that it corrects the letter bias at no cost in time. Every run stayed under 60 s per problem. **`combo` is the strategy in `config.env` for the official run.**
 
