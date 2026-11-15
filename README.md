@@ -9,6 +9,8 @@ MateQwen is a math copilot that runs entirely on an Arduino UNO Q (4 GB), offlin
 
 Nothing leaves the device: no cloud, no API keys, no student data sent anywhere.
 
+**📘 Arduino Project Hub write-up:** [MateQwen on Project Hub](https://projecthub.arduino.cc/projects/7287480c-bc2e-4546-b80d-d28c19dfed48/preview)
+
 **▶️ Demo video:** the board, the MateQwen app and the LED matrix working, all offline.
 
 [![MateQwen demo video](https://img.youtube.com/vi/bGllMtkxChU/hqdefault.jpg)](https://youtu.be/bGllMtkxChU)
