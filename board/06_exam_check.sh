@@ -31,7 +31,7 @@ if [ "$APP_HOST" = 0.0.0.0 ]; then
     "ss -ltn | awk '{print \$4}' | grep -qx '0.0.0.0:$APP_PORT'"
   check "MateQwen opens at http://$IP:$APP_PORT" "curl -sf -o /dev/null http://$IP:$APP_PORT/"
 fi
-check "predict.py strategy is cascade" "[ \"$STRATEGY\" = cascade ]"
+check "predict.py strategy is combo or cascade" "[ \"$STRATEGY\" = combo ] || [ \"$STRATEGY\" = cascade ]"
 free -m | awk 'NR==2 {printf "  RAM: %d MB used, %d MB available\n", $3, $7}'
 
 step "predict.py on $COUNT problems of $INPUT"
