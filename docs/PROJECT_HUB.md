@@ -14,7 +14,7 @@ MateQwen is a math copilot that runs **entirely on an Arduino UNO Q (4 GB)**, wi
 - **It reasons.** Given a Kangaroo problem with five options, it picks the right letter in under 60 seconds, using two small language models and a Python program it writes itself.
 
 > 📷 Photo: the UNO Q with the LED matrix lit, next to a phone showing the app.
-> 🎬 Video (30 s): a student solving a problem with one hint, and the matrix showing the tick.
+> 🎬 Demo video: https://youtu.be/bGllMtkxChU (in the Project Hub editor, use the video button to embed it).
 
 ## 2. Components and apps
 
