@@ -250,7 +250,12 @@ Start from a board set up with **steps 0–12 of the organizers' guide**, now in
    python3 teach/prepare_app.py --require-guide
    ```
    The `math-app` service serves it at `http://<board-ip>:8000`. Without Wi-Fi: `adb forward tcp:8000 tcp:8000`, then `http://127.0.0.1:8000`.
-4. **LED matrix**: open `teach/applab/canguro-led/` in Arduino App Lab and run it on the board.
+4. **LED matrix**: open `teach/applab/canguro-led/` in Arduino App Lab and run it on the board. Then make it the default app, so it starts at boot like the web app:
+   ```bash
+   arduino-app-cli properties set default /home/arduino/ArduinoApps/canguro-led
+   arduino-app-cli properties get default   # Default app: Canguro Coach LED
+   ```
+   Without this step, the LEDs stop after a reboot.
 5. **Before the official run**:
    ```bash
    ./board/06_exam_check.sh

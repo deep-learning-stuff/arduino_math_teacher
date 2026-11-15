@@ -65,7 +65,7 @@ The full commands are in the GitHub repository: `docs/SETUP.md` for the board, a
 3. **Install the services.** Run `./board/04_install_services.sh`. *You should see:* servers ready on 8081, 8082 and 8085, and MateQwen on port 8000.
 4. **Prepare M3Kang on the laptop** with `laptop/prepare_m3kang.py`, then copy `data/` to the board.
 5. **Prepare the teaching app** on the board: `teach/generate_solutions.py`, `teach/generate_worked.py`, then `teach/prepare_app.py --require-guide`. This takes hours, and can be resumed.
-6. **Start the LED app.** Open `teach/applab/canguro-led` in App Lab and run it.
+6. **Start the LED app.** Open `teach/applab/canguro-led` in App Lab and run it. Then make it the default app, so it starts at boot: `arduino-app-cli properties set default /home/arduino/ArduinoApps/canguro-led`. *You should see:* `arduino-app-cli properties get default` prints "Default app: Canguro Coach LED".
 7. **Play.** Open `http://<board-ip>:8000` from a phone on the same Wi-Fi, or use `adb forward tcp:8000 tcp:8000` over USB.
 8. **Check the reasoning.** Run `./board/06_exam_check.sh`, then `python3 eval.py --input data/demo/train.jsonl --limit 0 --name combo`.
 
