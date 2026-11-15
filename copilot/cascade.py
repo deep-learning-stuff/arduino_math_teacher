@@ -197,3 +197,79 @@ def code_letter(problem, deadline, measured_prefill_tps=None):
     value = to_number(out)
     hits = [k for k, v in values.items() if value is not None and v == value]
     return (hits[0] if len(hits) == 1 else None), {"printed": out[:40], "tokens": n}
+
+
+# --- Checking the options instead of solving -----------------------------------
+#
+# A small model often cannot build the answer, but can say whether a given
+# number fits the conditions ("which number ... such that ..."). So the code
+# model writes ok(x), and we try it on the five options. One True is an
+# answer; two to four True rule the others out, and the vote picks among them.
+#
+# The prompt starts exactly like the program's, so when the program ran just
+# before, the server has all of it cached and only reads the function header.
+
+CHECK_HEAD = ("def ok(x):\n"
+              "    \"\"\"Return True if x is the correct answer to the problem, False otherwise.\"\"\"\n")
+CHECK_TOKENS = int(CONFIG.get("CHECK_MAX_TOKENS", "160"))
+
+
+def function_body(body):
+    """Only the indented lines of ok(x). Measured on the board: the model often
+    goes on after the function with its own loop or prints, sometimes with
+    characters that are not valid Python, and that broke the whole checker."""
+    kept = []
+    for line in body.splitlines():
+        if line.strip() and not line[:1].isspace():
+            break
+        kept.append(line)
+    return "\n".join(kept).rstrip()
+
+
+def checker_source(body, values):
+    """The program we run: the model's ok(x), then a loop over the options.
+    Integers are passed as int, the rest as Fraction, so x == 3 and x / 2 work."""
+    body = function_body(body)
+    literals = []
+    for v in values:
+        literals.append(str(v.numerator) if v.denominator == 1 else f"Fraction({v.numerator}, {v.denominator})")
+    return ("from fractions import Fraction\n" + CHECK_HEAD + body + "\n\n"
+            "_r = []\n"
+            f"for _i, _x in enumerate([{', '.join(literals)}]):\n"
+            "    try:\n"
+            "        _r.append(str(_i) if ok(_x) is True else '')\n"
+            "    except Exception:\n"
+            "        _r.append('')\n"
+            "print('OK:' + ','.join(c for c in _r if c))\n")
+
+
+def check_letters(problem, deadline, measured_prefill_tps=None, cached=True):
+    """(letters for which ok(x) is True, info), or (None, info) if no usable
+    checker came back in time. Never runs past deadline (a perf_counter value).
+    cached: whether the program prompt for this problem was just sent."""
+    values = numeric_options(problem.get("options") or {})
+    if values is None:
+        return None, {"why": "options are not five numbers"}
+    scale = 1.0
+    if measured_prefill_tps and CONFIG.get("CODE_PORT", CONFIG["LLM_PORT"]) == CONFIG["LLM_PORT"]:
+        scale = min(1.0, measured_prefill_tps / PREFILL_TPS)
+    base = prompt(problem)
+    p = base + CHECK_HEAD
+    new_chars = len(CHECK_HEAD) if cached else len(p) - len(SYSTEM)
+    prefill = new_chars / 4.0 / (PREFILL_TPS * scale)
+    left = deadline - time.perf_counter() - RUN_SECONDS - prefill - 1.0
+    n = int(min(CHECK_TOKENS, left * GEN_TPS * scale * 0.9))
+    if n < 25:
+        return None, {"why": "no time"}
+    body, finished = stream_until(p, n, deadline - RUN_SECONDS)
+    if not finished or "return" not in body:
+        return None, {"why": "out of time" if not finished else "no return", "tokens": n}
+    letters = sorted(values)
+    src = checker_source(body.rstrip(), [values[k] for k in letters])
+    out = run_program(src, min(RUN_SECONDS, max(0.5, deadline - time.perf_counter() - 0.5)))
+    if not out.startswith("OK:"):
+        return None, {"why": "checker crashed", "tokens": n}
+    passed = [letters[int(i)] for i in out[3:].split(",") if i]
+    if not passed or len(passed) == 5:  # says nothing
+        return None, {"why": f"{len(passed)} options pass", "tokens": n}
+    return passed, {"passed": "".join(passed), "tokens": n}
